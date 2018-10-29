@@ -1,0 +1,13 @@
+{
+  "code-runner.executorMap": {
+    "cpp": "cd $dir && C:\\MinGW\\bin\\g++.exe GAfunction.cpp GeneticAlgorithm.cpp Chromosome.cpp Log.cpp Population.cpp -o GAfunction.exe && GAfunction.exe"
+},
+"files.associations": {
+    "bitset": "cpp",
+    "initializer_list": "cpp",
+    "type_traits": "cpp",
+    "vector": "cpp",
+    "xstring": "cpp",
+    "xutility": "cpp"
+}
+}
