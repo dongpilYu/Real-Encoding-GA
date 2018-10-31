@@ -2,8 +2,9 @@
 #include <bitset>
 #include <iostream>
 #include <math.h>
-#include <sys/time.h>
-
+#include <random>
+#include <time.h>
+//#include <sys/time.h>
 Population::Population(void)
 {
 }
@@ -49,6 +50,12 @@ void Population::Crossover(const int &index1, const int &index2, const int &exte
     Chromosome *mom = pop.at(index1);
     Chromosome *dad = pop.at(index2);
 
+    enum parent pa;
+    if (mom->GetFitness() > dad->GetFitness())
+        pa = mama;
+    else
+        pa = dady;
+    // crossover를 통해 얻은 자식을 적합도가 낮은 부모로 대체
     for (int i = 0; i < chromosome_size; i++)
     {
         double mini, maxi, extendedMin, extendedMax;
@@ -64,12 +71,32 @@ void Population::Crossover(const int &index1, const int &index2, const int &exte
             extendedMax = constraintType.max;
 
         double z = rand() / (double(RAND_MAX) + 1) * (extendedMax - extendedMin) + extendedMax;
+        if (pa == mama)
+            dad->setChromosome(i, z);
+        else
+            mom->setChromosome(i, z);
     }
+    if (pa == mama)
+        dad->setFitness(CalcChromosomeFitness(index2));
+    else
+        mom->setFitness(CalcChromosomeFitness(index1));
 }
 
 // Apply mutation to selected chromosome: x part or y part
-void Population::Mutation(const int &index, const int &mutationRate)
+void Population::Mutation(const int &index, const int &mutation_rate)
 {
+    std::default_random_engine generator;
+    std::normal_distribution<double> distribution(constraintType.min, constraintType.max);
+    for (int i = 0; i < chromosome_size; i++)
+    {
+        if (rand() % 100 < mutation_rate)
+        {
+            double z = pop.at(index)->getChromosome(i);
+            z += distribution(generator);
+            pop.at(index)->setChromosome(i, z);
+        }
+    }
+    pop.at(index)->setFitness(CalcChromosomeFitness(index));
 }
 
 // Evaluate the population fitnesses
@@ -84,15 +111,16 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome)
     {
         double fitness = CalcChromosomeFitness(i);
         Chromosome *chr = pop.at(i);
+        puts("hum\n");
         chr->setFitness(fitness);
-
+        puts("jn\n");
         // Output the chromosome
         //chr->Print( i );
         //totalFitness += fitness;
         // Store best solution
         if (i == 0)
             bestFitness = fitness;
-
+        printf("best : %lf\n", bestFitness);
         if (fitness < bestFitness)
         {
             bestFitness = fitness;
@@ -110,9 +138,10 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome)
 // Create an arbitrary random chromosome
 Chromosome *Population::CreateRandomChromosome()
 {
-    struct timeval time;
-    gettimeofday(&time, NULL);
-    srand((time.tv_sec * 1000) + (time.tv_usec / 1000));
+    //struct timeval time;
+    //gettimeofday(&time, NULL);
+    //srand((time.tv_sec * 1000) + (time.tv_usec / 1000));
+    srand(time(NULL));
     Chromosome *chr = new Chromosome(chromosome_size);
 
     for (int i = 0; i < chr->GetSize(); i++)
@@ -123,10 +152,10 @@ Chromosome *Population::CreateRandomChromosome()
             value = value * -1;
         // constraintType.max와 constraintType.min이 부호만 다르기 때문에
 
-        printf("%d %lf\n", i, value);
+        //printf("%d %lf\n", i, value);
         chr->setChromosome(i, value);
     }
-    printf("\n");
+    //printf("\n");
 }
 double Population::CalculateFitnessFunction(const Chromosome &chr)
 {

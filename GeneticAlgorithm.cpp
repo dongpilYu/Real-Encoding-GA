@@ -17,7 +17,7 @@ void GeneticAlgorithm::Initialize(const int &crossover_rate, const int &extensio
     SetParameters(crossover_rate, extension_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
     SetConstraints(constraint);
     CreatePopulation();
-    log.Open(path.c_str());
+    //log.Open(path.c_str());
 }
 void GeneticAlgorithm::SetConstraints(const Constraint &constraint)
 {
@@ -29,11 +29,18 @@ void GeneticAlgorithm::Run()
 {
     for (int i = 0; i < number_iterations; i++)
     {
+        printf("%d\n", i);
+
         LogResult(Evaluate(), i);
+        printf("show\n");
         Select();
+        printf("me\n");
         Crossover();
+        printf("the\n");
         Mutate();
+        printf("money\n");
     }
+    printf("hello\n");
 }
 
 // Create initial random population of chromosomes
@@ -44,7 +51,7 @@ void GeneticAlgorithm::CreatePopulation()
 double GeneticAlgorithm::Evaluate()
 {
     double best = pop.EvaluatePopulation(bestChromosome);
-
+    printf("%lf\n", best);
     if (best < bestFitness)
     {
         bestFitness = best;
@@ -147,12 +154,14 @@ void GeneticAlgorithm::SetParameters(const int &crossover_rate, const int &exten
 void GeneticAlgorithm::LogResult(const double &result,
                                  const int &iter)
 {
-    /*if ( iter % count == 0 )
-	{
-		std::stringstream ss;
-		ss << iter << "\t" << result << "\t" << best_x << "\t" << best_y;
-		log.Write( (char*) ss.str().c_str() );
-	}*/
+    /*
+    if (iter % epoch == 0)
+    {
+        std::stringstream ss;
+        ss << iter << "\t" << result;
+        log.Write((char *)ss.str().c_str());
+    }
+    */
     /*
     if (iter % epoch == 0 || iter < epoch)
     {

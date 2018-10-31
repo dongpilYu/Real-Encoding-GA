@@ -25,6 +25,12 @@ class Population
     double GetChromosomeFitness(const int &index) const;
     void CopyChromosome(const int &source, const int &dest);
 
+    enum parent
+    {
+        mama = 0,
+        dady
+    };
+
   private:
     Chromosome *CreateRandomChromosome();
 
