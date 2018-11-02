@@ -1,54 +1,59 @@
 {
-  // See https://go.microsoft.com/fwlink/?LinkId=733558
-  // for the documentation about the tasks.json format
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Build - Debug",
-      "type": "shell",
-      "command": "g++",
-      "args": [
-        "GAfunction.cpp",
-        "GeneticAlgorithm.cpp",
-        "Chromosome.cpp",
-        "Population.cpp",
-        "Log.cpp",
-        "-o",
-        "GAfunction.exe",
-        "-g"
-      ],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
-    },
-    {
-      "label": "Build - Release",
-      "type": "shell",
-      "command": "g++",
-      "args": [
-        "GAfunction.cpp",
-        "GeneticAlgorithm.cpp",
-        "Chromosome.cpp",
-        "Population.cpp",
-        "Log.cpp",
-        "-o",
-        "GAfunction.exe"
-      ],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
-    },
-    {
-      "label": "Test",
-      "type": "shell",
-      "command": "GAfunction.exe",
-      "args": [],
-      "group": {
-        "kind": "test",
-        "isDefault": true
-      }
-    }
-  ]
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build - Debug",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "GAfunction.cpp",
+                "GeneticAlgorithm.cpp",
+                "Chromosome.cpp",
+                "Population.cpp",
+                "Log.cpp",
+                "-o",
+                "GAfunction.exe",
+                "-g"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Build - Release",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "GAfunction.cpp",
+                "GeneticAlgorithm.cpp",
+                "Chromosome.cpp",
+                "Population.cpp",
+                "Log.cpp",
+                "-o",
+                "GAfunction.exe"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "command": "${workspaceFolder}/GAfunction.exe",
+            "args": [
+                "0",
+                "10",
+                "20",
+                "10",
+                "1",
+                "50",
+                "2",
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }
+    ]
 }
