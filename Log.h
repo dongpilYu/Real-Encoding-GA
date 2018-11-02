@@ -1,9 +1,7 @@
 #pragma once
 
+#include "Chromosome.h"
 #include <fstream>
-
-using namespace std;
-
 class Log
 {
   public:
@@ -11,8 +9,10 @@ class Log
     Log(char *);
     ~Log();
     void Write(char *txt);
+    void Write(double result);
+    void Write(const Chromosome &chr);
     void Open(const char *);
 
   private:
-    ofstream m_stream;
+    std::ofstream m_stream;
 };
