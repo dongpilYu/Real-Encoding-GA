@@ -6,22 +6,35 @@
 
 GeneticAlgorithm::GeneticAlgorithm()
 {
-    bestFitness = -9999999999999;
+    bestFitness = 9999999999999;
+    bestChromosome = new Chromosome();
+    SetRandomSeed();
 }
 GeneticAlgorithm::~GeneticAlgorithm()
 {
+    delete bestChromosome;
+}
+void GeneticAlgorithm::Initialize(const int &pr, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const std::string &path, Constraint &constraint)
+{
+    SetParameters(royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
+    SetConstraints(constraint, chromosome_size, pr, royal_number, num_k);
+    CreatePopulation(pr);
+    log.Open(path.c_str());
 }
 
-void GeneticAlgorithm::Initialize(const int &crossover_rate, const int &extension_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const std::string &path, const Constraint &constraint)
+void GeneticAlgorithm::SetRandomSeed()
 {
-    SetParameters(crossover_rate, extension_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
-    SetConstraints(constraint);
-    CreatePopulation();
-    //log.Open(path.c_str());
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    srand((time.tv_sec * 1000) + (time.tv_usec / 1000));
 }
-void GeneticAlgorithm::SetConstraints(const Constraint &constraint)
+void GeneticAlgorithm::SetConstraints(Constraint &constraint, const int &chromosome_size, const int &pr, const int &royal_number, const int &num_k)
 {
     pop.SetConstraints(constraint);
+    if (pr < 5)
+        constraint.Make_optimal_solution(chromosome_size);
+    else
+        constraint.setParms(num_k, royal_number);
 }
 
 // Run the genetic algorithm
@@ -29,29 +42,24 @@ void GeneticAlgorithm::Run()
 {
     for (int i = 0; i < number_iterations; i++)
     {
-        printf("%d\n", i);
-
+        LogResult(pop);
         LogResult(Evaluate(), i);
-        printf("show\n");
         Select();
-        printf("me\n");
         Crossover();
-        printf("the\n");
         Mutate();
-        printf("money\n");
     }
-    printf("hello\n");
 }
 
 // Create initial random population of chromosomes
-void GeneticAlgorithm::CreatePopulation()
+void GeneticAlgorithm::CreatePopulation(const int &pr)
 {
-    pop.CreateRandomPopulation(population_size);
+    pop.CreateRandomPopulation(population_size, pr);
 }
 double GeneticAlgorithm::Evaluate()
 {
     double best = pop.EvaluatePopulation(bestChromosome);
-    printf("%lf\n", best);
+
+    // In real problem, we must find a chromosome that has small value
     if (best < bestFitness)
     {
         bestFitness = best;
@@ -136,10 +144,10 @@ void GeneticAlgorithm::Select()
         i++;
     }
 }
-void GeneticAlgorithm::SetParameters(const int &crossover_rate, const int &extension_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch)
+void GeneticAlgorithm::SetParameters(const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch)
 {
     this->crossover_rate = crossover_rate;
-    this->extension_rate = extension_rate;
+    this->extension_rate = 50;
     this->mutation_rate = mutation_rate;
     this->population_size = population_size;
     this->number_iterations = number_iterations;
@@ -150,15 +158,31 @@ void GeneticAlgorithm::SetParameters(const int &crossover_rate, const int &exten
     pop.setChromosomeSize(chromosome_size);
     (*bestChromosome).setChromosomeSize(chromosome_size);
 }
+void GeneticAlgorithm::SetParameters(const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch)
+{
+    this->num_k = num_k;
+    this->royal_number = royal_number;
+    SetParameters(crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
+}
+void GeneticAlgorithm::LogResult(const Population &pop)
+{
+    std::vector<Chromosome *> chrs = pop.GetPopulation();
 
+    for (int i = 0; i < chrs.size(); i++)
+        log.Write(*(chrs.at(i)));
+}
 void GeneticAlgorithm::LogResult(const double &result,
                                  const int &iter)
 {
+
+    log.Write(result);
     /*
     if (iter % epoch == 0)
     {
+
         std::stringstream ss;
-        ss << iter << "\t" << result;
+        ss << iter << "\t" << result << "\n";
+
         log.Write((char *)ss.str().c_str());
     }
     */
