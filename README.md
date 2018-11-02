@@ -1,7 +1,9 @@
 # Written by
 * dongpilYu (https://github.com/dongpilYu/Real-Encoding-GA)
-* programming with C++
-* g++ compiler
+
+# Requirements
+* programming with C++ 11 or later
+* g++ compiler 6.3.0
 
 # Real Valued Encoding GA
 * Parameters
@@ -9,10 +11,10 @@
     * ```Gaussian Mutation``` : Mutation rate : 0.02
     * ```Tournament Selection``` : Tourament size : Population size / 10
 * Problems
-    * ```Shifted Rosenbrock``` : Rosenbrock function is a non-convex function.
-    * ```Shifted Sphere``` : Sphere function is a continuous, convex and unimal function
-    * ```Shifted Schwefel``` : Schwefel function is a complex function with many local minima.
-    * ```Shifted Rastrigin``` : Rasrigin function is a typical example of non-linear multimodal function
+    * ```Shifted Rosenbrock``` : A non-convex function.
+    * ```Shifted Sphere``` : A continuous, convex and unimal function
+    * ```Shifted Schwefel``` : A complex function with many local minima.
+    * ```Shifted Rastrigin``` : A typical example of non-linear multimodal function
 
 # Binary Valued Encoding GA
 * Parameters
