@@ -2,7 +2,7 @@
 * dongpilYu (https://github.com/dongpilYu/Real-Encoding-GA)
 
 # Requirements
-* programming with C++ 11 or later
+* C++ 11 or later
 * g++ compiler 6.3.0
 
 # Real Valued Encoding GA
