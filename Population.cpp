@@ -34,13 +34,13 @@ void Population::setChromosomeSize(const int &size)
     chromosome_size = size;
 }
 // Create initial arbitrary population of chromosomes, size : size of population
-void Population::CreateRandomPopulation(const int &size, const int &pr)
+void Population::CreateRandomPopulation(const int &size, const int &binaryOrNot)
 {
-    if (pr < 5)
+    if (binaryOrNot)
     {
         for (int i = 0; i < size; i++)
         {
-            Chromosome *chr = CreateRandomChromosome_real();
+            Chromosome *chr = CreateRandomChromosome_bin();
             pop.push_back(chr);
         }
     }
@@ -49,7 +49,7 @@ void Population::CreateRandomPopulation(const int &size, const int &pr)
     {
         for (int i = 0; i < size; i++)
         {
-            Chromosome *chr = CreateRandomChromosome_bin();
+            Chromosome *chr = CreateRandomChromosome_real();
             pop.push_back(chr);
         }
     }
@@ -59,7 +59,21 @@ std::vector<Chromosome *> Population::GetPopulation() const
     return pop;
 }
 // Apply one-point crossover to selected chromosome pair
-void Population::Crossover(const int &index1, const int &index2, const int &extension_rate)
+void Population::OnePointCrossover(const int &index1, const int &index2, const int &point)
+{
+    Chromosome *chr1 = pop.at(index1);
+    Chromosome *chr2 = pop.at(index2);
+
+    for (int i = point; i < chromosome_size; i++)
+    {
+        unsigned char v1 = chr1->getChromosome(i);
+        unsigned char v2 = chr2->getChromosome(i);
+
+        chr1->setChromosome(index1, v2);
+        chr2->setChromosome(index1, v1);
+    }
+}
+void Population::ExtendedBoxCrossover(const int &index1, const int &index2, const int &extension_rate)
 {
     Chromosome *mom = pop.at(index1);
     Chromosome *dad = pop.at(index2);
@@ -97,20 +111,42 @@ void Population::Crossover(const int &index1, const int &index2, const int &exte
 }
 
 // Apply mutation to selected chromosome: x part or y part
-void Population::Mutation(const int &index, const int &mutation_rate)
+void Population::GaussianMutation(const int &index, const int &mutation_rate)
 {
     std::default_random_engine generator;
     std::normal_distribution<double> distribution(0, (constraintType.max - constraintType.min) / 10);
+
+    Chromosome *chr = pop.at(index);
+
     for (int i = 0; i < chromosome_size; i++)
     {
         if (rand() % 100 < mutation_rate)
         {
-            double z = pop.at(index)->getChromosome(i);
+            double z = chr->getChromosome(i);
             z += distribution(generator);
-            pop.at(index)->setChromosome(i, z);
+            chr->setChromosome(i, z);
         }
     }
-    pop.at(index)->setFitness(CalcChromosomeFitness(index));
+    chr->setFitness(CalcChromosomeFitness(index));
+}
+
+void Population::BitwiseMutation(const int &index, const int &mutation_rate)
+{
+
+    Chromosome *chr = pop.at(index);
+
+    for (int i = 0; i < chromosome_size; i++)
+    {
+        int r = rand() % 100;
+
+        if (r < mutation_rate)
+        {
+            unsigned char value = chr->getChromosome(i);
+            value = rand() % 100 < 50 ? 1 : 0;
+            chr->setChromosome(i, value);
+        }
+    }
+    chr->setFitness(CalcChromosomeFitness(index));
 }
 
 // Evaluate the population fitnesses
@@ -140,9 +176,6 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome)
             bestChromosome = chr;
         }
     }
-
-    //std::cout << "\n\n";
-
     //aveFitness = totalFitness / pop.size();
     return bestFitness;
 }
@@ -173,7 +206,7 @@ Chromosome *Population::CreateRandomChromosome_bin()
             value = 1;
         else
             value = 0;
-        // constraintType.max와 constraintType.min이 부호만 다르기 때문에
+
         chr->setChromosome(i, value);
     }
     return chr;
@@ -200,7 +233,6 @@ void Population::CopyChromosome(const int &source, const int &dest)
     {
         // Get source chromosome element
         double value = chr1->getChromosome(i);
-
         // Write this element value into the destination element
         chr2->setChromosome(i, value);
     }

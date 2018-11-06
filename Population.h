@@ -16,8 +16,10 @@ class Population
     void SetConstraints(Constraint &constraint);
     void setChromosomeSize(const int &size);
     void CreateRandomPopulation(const int &size, const int &pr);
-    void Crossover(const int &index1, const int &index2, const int &extension_rate);
-    void Mutation(const int &index, const int &mutationRate);
+    void ExtendedBoxCrossover(const int &index1, const int &index2, const int &extension_rate);
+    void OnePointCrossover(const int &index1, const int &index2, const int &point);
+    void GaussianMutation(const int &index, const int &mutationRate);
+    void BitwiseMutation(const int &index, const int &mutationRate);
     double EvaluatePopulation(Chromosome *bestChromosome);
     double CalcChromosomeFitness(const int &index);
 
