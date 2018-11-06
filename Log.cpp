@@ -14,18 +14,14 @@ Log::Log(char *filename)
 
 void Log::Write(char *txt)
 {
-    m_stream << txt << std::endl;
+    m_stream << txt;
 }
 
-void Log::Write(double result)
+void Log::Write(const Chromosome *chr)
 {
-    m_stream << result << std::endl;
-}
-
-void Log::Write(const Chromosome &chr)
-{
-    for (int i = 0; i < chr.GetSize(); i++)
-        m_stream << chr.getChromosome(i) << ' ';
+    m_stream << "Optimal chromosome : ";
+    for (int i = 0; i < chr->GetSize(); i++)
+        m_stream << chr->getChromosome(i) << ' ';
 
     m_stream << std::endl;
 }

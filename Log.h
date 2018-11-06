@@ -9,8 +9,7 @@ class Log
     Log(char *);
     ~Log();
     void Write(char *txt);
-    void Write(double result);
-    void Write(const Chromosome &chr);
+    void Write(const Chromosome *chr);
     void Open(const char *);
 
   private:
