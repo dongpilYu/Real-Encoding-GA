@@ -25,9 +25,10 @@ Population::~Population(void)
     pop.clear();
 }
 
-void Population::SetConstraints(Constraint &constraint)
+void Population::SetConstraints(Constraint &constraint, const int &pr)
 {
     constraintType = constraint;
+    problem_type = pr;
 }
 void Population::setChromosomeSize(const int &size)
 {
@@ -169,11 +170,24 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome)
         if (i == 0)
             bestFitness = fitness;
 
-        if (fitness < bestFitness)
+        if (problem_type < 5)
         {
-            bestFitness = fitness;
-            bestFitnessIndex = i;
-            bestChromosome = chr;
+            if (fitness < bestFitness)
+            {
+                bestFitness = fitness;
+                bestFitnessIndex = i;
+                bestChromosome = chr;
+            }
+        }
+
+        else
+        {
+            if (fitness > bestFitness)
+            {
+                bestFitness = fitness;
+                bestFitnessIndex = i;
+                bestChromosome = chr;
+            }
         }
     }
     //aveFitness = totalFitness / pop.size();

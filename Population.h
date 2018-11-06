@@ -7,13 +7,13 @@
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 const double infinity = 9999999999999;
-
+const double minus_infinity = -9999999999999;
 class Population
 {
   public:
     Population(void);
     ~Population(void);
-    void SetConstraints(Constraint &constraint);
+    void SetConstraints(Constraint &constraint, const int &pr);
     void setChromosomeSize(const int &size);
     void CreateRandomPopulation(const int &size, const int &pr);
     void ExtendedBoxCrossover(const int &index1, const int &index2, const int &extension_rate);
@@ -40,5 +40,6 @@ class Population
   private:
     std::vector<Chromosome *> pop;
     int chromosome_size;
+    int problem_type;
     Constraint constraintType;
 };
