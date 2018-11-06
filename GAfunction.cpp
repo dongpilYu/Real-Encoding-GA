@@ -5,20 +5,16 @@
 ���յ��� ���ϴ� �Լ��� ���̽� ���� �ٸ���.
 */
 #include "GeneticAlgorithm.h"
-#include <iostream>
-using namespace std;
-enum PROBLEM
-{
-    RealEncoding = 0,
-    BinEncoding = 1,
-};
+
 const int precision = 6;
 const int epoch = 10;
-const std::string path = "C:\\Users\\dong\\Desktop\\VScode\\Real-Encoding-GA\\Log.txt";
+const std::string path = "Log.txt";
+
 Constraint typeOfProblem(const int &problem_type);
+
 int main(int argc, char **argv)
 {
-    enum PROBLEM pr = (PROBLEM)atoi(argv[1]);
+    const int binaryOrNot = atoi(argv[1]); // real encoding - 0, binary encoding - 1
     const int chromosome_size = atoi(argv[2]);
     const int population_size = atoi(argv[3]);
     const int tournament_size = population_size / 10;
@@ -33,7 +29,7 @@ int main(int argc, char **argv)
     GeneticAlgorithm ga;
     Constraint constraint = typeOfProblem(problem_type);
 
-    ga.Initialize(pr, royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch, path, constraint);
+    ga.Initialize(binaryOrNot, problem_type, royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch, path, constraint);
     ga.Run();
 
     return 0;
@@ -59,4 +55,4 @@ Constraint typeOfProblem(const int &problem_type)
     case 8:
         return Constraint::Deceptive;
     }
-}
+};
