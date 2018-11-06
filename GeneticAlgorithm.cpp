@@ -6,7 +6,6 @@
 
 GeneticAlgorithm::GeneticAlgorithm()
 {
-    bestFitness = 9999999999999;
     bestChromosome = new Chromosome();
     SetRandomSeed();
 }
@@ -16,6 +15,11 @@ GeneticAlgorithm::~GeneticAlgorithm()
 }
 void GeneticAlgorithm::Initialize(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const std::string &path, Constraint &constraint)
 {
+    if (binaryOrNot)
+        bestFitness = -9999999999999;
+    else
+        bestFitness = 9999999999999;
+
     log.Open(path.c_str());
     SetParameters(binaryOrNot, problem_type, royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
     SetConstraints(constraint, chromosome_size, problem_type, royal_number, num_k);
@@ -34,7 +38,7 @@ void GeneticAlgorithm::SetConstraints(Constraint &constraint, const int &chromos
         constraint.setParms(num_k, royal_number);
     else
         log.Write(constraint.Make_optimal_solution(chromosome_size));
-    pop.SetConstraints(constraint);
+    pop.SetConstraints(constraint, pr);
 }
 
 // Run the genetic algorithm
@@ -42,6 +46,16 @@ void GeneticAlgorithm::Run()
 {
     for (int i = 0; i < number_iterations; i++)
     {
+        if (BinValued)
+        {
+            if (bestFitness == chromosome_size)
+                break;
+        }
+        else
+        {
+            if (bestFitness == 0)
+                break;
+        }
         // LogResult(pop);
         LogResult(Evaluate(), i);
         Select();
