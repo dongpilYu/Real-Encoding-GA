@@ -12,9 +12,6 @@ struct Constraint
     int num_k = 0, royal_number = 0;
     int **landscape;
     bool nk_first = true;
-    // nk_first는 두 가지 기능을 한다.
-    // 1. 메모리 해제를 위해 nk_landscape를 사용했는지 확인
-    // 2. 첫 번째 시도에만 landscape를 생성
 
     // max, min, optimalSol은 실수 인코딩 문제를 위한 부분
     // 바이너리 인코딩 문제라면, 0, 0, NULL인 상태를 유지한다.
@@ -37,14 +34,21 @@ struct Constraint
     Constraint(void) {}
     ~Constraint(void)
     {
-        if (false == nk_first)
+        switch (_function)
         {
+        case Rosenbrock:
+        case Sphere:
+        case Schwefel:
+        case Rastrigin:
+            delete optimalSol;
+        case NKlandscape:
             for (int i = 0; i < optimalSol->GetSize(); i++)
                 delete landscape[i];
             delete landscape;
+            break;
+        default:
+            break;
         }
-        //else if (-1 == royal_number)
-        //delete optimalSol;
     }
     Constraint(Function f) : _function(f)
     {
@@ -130,8 +134,6 @@ struct Constraint
         double fitness = 0.0;
         for (int i = 0; i < chr.GetSize() - 1; i++)
         {
-            double val1 = chr.getChromosome(i);
-            double val2 = optimalSol->getChromosome(i);
             double diff1 = chr.getChromosome(i) - optimalSol->getChromosome(i);
             double diff2 = chr.getChromosome(i + 1) - optimalSol->getChromosome(i + 1);
             fitness += 100 * pow((pow(diff1 + 1, 2) - (diff2 + 1)), 2) + pow(diff1, 2);
