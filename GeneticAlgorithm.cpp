@@ -14,12 +14,12 @@ GeneticAlgorithm::~GeneticAlgorithm()
 {
     delete bestChromosome;
 }
-void GeneticAlgorithm::Initialize(const int &pr, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const std::string &path, Constraint &constraint)
+void GeneticAlgorithm::Initialize(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const std::string &path, Constraint &constraint)
 {
-    SetParameters(royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
-    SetConstraints(constraint, chromosome_size, pr, royal_number, num_k);
-    CreatePopulation(pr);
     log.Open(path.c_str());
+    SetParameters(binaryOrNot, problem_type, royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
+    SetConstraints(constraint, chromosome_size, problem_type, royal_number, num_k);
+    CreatePopulation(binaryOrNot);
 }
 
 void GeneticAlgorithm::SetRandomSeed()
@@ -30,11 +30,11 @@ void GeneticAlgorithm::SetRandomSeed()
 }
 void GeneticAlgorithm::SetConstraints(Constraint &constraint, const int &chromosome_size, const int &pr, const int &royal_number, const int &num_k)
 {
-    pop.SetConstraints(constraint);
-    if (pr < 5)
-        constraint.Make_optimal_solution(chromosome_size);
-    else
+    if (BinValued)
         constraint.setParms(num_k, royal_number);
+    else
+        log.Write(constraint.Make_optimal_solution(chromosome_size));
+    pop.SetConstraints(constraint);
 }
 
 // Run the genetic algorithm
@@ -42,7 +42,7 @@ void GeneticAlgorithm::Run()
 {
     for (int i = 0; i < number_iterations; i++)
     {
-        LogResult(pop);
+        // LogResult(pop);
         LogResult(Evaluate(), i);
         Select();
         Crossover();
@@ -51,20 +51,24 @@ void GeneticAlgorithm::Run()
 }
 
 // Create initial random population of chromosomes
-void GeneticAlgorithm::CreatePopulation(const int &pr)
+void GeneticAlgorithm::CreatePopulation(const int &binaryOrNot)
 {
-    pop.CreateRandomPopulation(population_size, pr);
+    pop.CreateRandomPopulation(population_size, binaryOrNot);
 }
 double GeneticAlgorithm::Evaluate()
 {
     double best = pop.EvaluatePopulation(bestChromosome);
 
-    // In real problem, we must find a chromosome that has small value
-    if (best < bestFitness)
+    if (BinValued) // maximization problem
     {
-        bestFitness = best;
+        if (best > bestFitness)
+            bestFitness = best;
     }
-
+    else // minimization problem
+    {
+        if (best < bestFitness)
+            bestFitness = best;
+    }
     return bestFitness;
 }
 
@@ -93,8 +97,12 @@ void GeneticAlgorithm::Crossover()
                 index2 = tmp;
             } // index1 < index2 임을 보장
 
-            // Do Extended-box crossover
-            pop.Crossover(index1, index2, extension_rate);
+            int point = rand() % chromosome_size;
+
+            if (BinValued)
+                pop.OnePointCrossover(index1, index2, point);
+            else
+                pop.ExtendedBoxCrossover(index1, index2, extension_rate);
         }
     }
 }
@@ -104,7 +112,11 @@ void GeneticAlgorithm::Mutate()
     for (int i = 0; i < population_size; i++)
     {
         int r = rand() % 100;
-        pop.Mutation(i, mutation_rate);
+
+        if (BinValued)
+            pop.BitwiseMutation(i, mutation_rate);
+        else
+            pop.GaussianMutation(i, mutation_rate);
     }
 }
 // Select population chromosomes according to fitness
@@ -125,26 +137,29 @@ void GeneticAlgorithm::Select()
             index2 = rand() % population_size;
         }
 
-        double fitness1 = fabs(pop.GetChromosomeFitness(index1));
-        double fitness2 = fabs(pop.GetChromosomeFitness(index2));
+        double fitness1 = pop.GetChromosomeFitness(index1);
+        double fitness2 = pop.GetChromosomeFitness(index2);
 
-        // We seek to find [x,y] that minimizes this function
-        // The bigget the value returned, the lower its fitness
-        if (fitness1 > fitness2)
+        if (BinValued) // maximization problem
         {
+            if (fitness1 < fitness2)
+                pop.CopyChromosome(index2, index1);
             // Copy chromosome 1 elements into chromosome 2
-            pop.CopyChromosome(index2, index1);
-        }
-        else
-        {
+            else
+                pop.CopyChromosome(index1, index2);
             // Copy chromosome 2 elements into chromosome 1
-            pop.CopyChromosome(index1, index2);
         }
-
+        else // minimization problem
+        {
+            if (fitness1 > fitness2)
+                pop.CopyChromosome(index2, index1);
+            else
+                pop.CopyChromosome(index1, index2);
+        }
         i++;
     }
 }
-void GeneticAlgorithm::SetParameters(const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch)
+void GeneticAlgorithm::SetParameters(const int &binaryOrNot, const int &problem_type, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch)
 {
     this->crossover_rate = crossover_rate;
     this->extension_rate = 50;
@@ -155,45 +170,38 @@ void GeneticAlgorithm::SetParameters(const int &crossover_rate, const int &mutat
     this->precision = precision;
     this->epoch = epoch;
     this->chromosome_size = chromosome_size;
+    this->problem_type = problem_type;
+    this->BinValued = binaryOrNot;
+
     pop.setChromosomeSize(chromosome_size);
     (*bestChromosome).setChromosomeSize(chromosome_size);
 }
-void GeneticAlgorithm::SetParameters(const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch)
+void GeneticAlgorithm::SetParameters(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch)
 {
     this->num_k = num_k;
     this->royal_number = royal_number;
-    SetParameters(crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
+    SetParameters(binaryOrNot, problem_type, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
 }
 void GeneticAlgorithm::LogResult(const Population &pop)
 {
     std::vector<Chromosome *> chrs = pop.GetPopulation();
 
     for (int i = 0; i < chrs.size(); i++)
-        log.Write(*(chrs.at(i)));
+        log.Write((chrs.at(i)));
 }
 void GeneticAlgorithm::LogResult(const double &result,
                                  const int &iter)
 {
-
-    log.Write(result);
-    /*
     if (iter % epoch == 0)
     {
-
         std::stringstream ss;
-        ss << iter << "\t" << result << "\n";
-
+        // ss << iter << "\t" << result << "\n";
+        ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
         log.Write((char *)ss.str().c_str());
     }
-    */
-    /*
+
     if (iter % epoch == 0 || iter < epoch)
     {
-        std::cout << "Iteration = " << std::setw(6) << iter
-                  << " X = " << std::fixed << std::setprecision(precision) << std::setw(precision + 1) << best_x
-                  << " Y = " << std::fixed << std::setprecision(precision) << std::setw(precision + 1) << best_y
-                  << " F(x,y) = " << std::setw(precision + 1) << bestFitness
-                  << std::endl;
+        std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
     }
-    */
 }
