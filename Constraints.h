@@ -7,12 +7,20 @@
 struct Constraint
 {
     double max = 0, min = 0;
-    int num_k = 0, royal_number = 0;
     Chromosome *optimalSol;
+
+    int num_k = 0, royal_number = 0;
+    int **landscape;
+    bool nk_first = true;
+    // nk_first는 두 가지 기능을 한다.
+    // 1. 메모리 해제를 위해 nk_landscape를 사용했는지 확인
+    // 2. 첫 번째 시도에만 landscape를 생성
+
     // max, min, optimalSol은 실수 인코딩 문제를 위한 부분
     // 바이너리 인코딩 문제라면, 0, 0, NULL인 상태를 유지한다.
-    // 마찬가지로, num_k 와 royal_number는 바이너리 인코딩 문제를 위한 부분으로
-    // 실수 인코딩 문제라면 0, 0인 상태를 유지한다.
+    // 마찬가지로, num_k, landscape, nk_first, royal_number는
+    // 바이너리 인코딩 문제를 위한 부분으로
+    // 실수 인코딩 문제라면 0, 0, NULL, true인 상태를 유지한다.
     enum Function
     {
         Rosenbrock,
@@ -27,6 +35,17 @@ struct Constraint
 
     Function _function;
     Constraint(void) {}
+    ~Constraint(void)
+    {
+        if (false == nk_first)
+        {
+            for (int i = 0; i < optimalSol->GetSize(); i++)
+                delete landscape[i];
+            delete landscape;
+        }
+        //else if (-1 == royal_number)
+        //delete optimalSol;
+    }
     Constraint(Function f) : _function(f)
     {
         switch (_function)
@@ -52,7 +71,7 @@ struct Constraint
         }
     }
     // 초기화 하는 과정에서 한번만 호출되야 한다.
-    void Make_optimal_solution(const int &chromosome_size)
+    Chromosome *Make_optimal_solution(const int &chromosome_size)
     {
         optimalSol = new Chromosome(chromosome_size);
         for (int i = 0; i < chromosome_size; i++)
@@ -63,6 +82,8 @@ struct Constraint
             // constraintType.max와 constraintType.min이 부호만 다르기 때문에
             optimalSol->setChromosome(i, value);
         }
+
+        return optimalSol;
     }
     double Fitness_with_noise(const Chromosome &chr)
     {
@@ -76,75 +97,157 @@ struct Constraint
     }
     double Fitness(const Chromosome &chr)
     {
-        double fitness = 0.0;
         switch (_function)
         {
+        /* Real encoding problem */
         case Rosenbrock:
-            for (int i = 0; i < chr.GetSize() - 1; i++)
-            {
-                double val1 = chr.getChromosome(i);
-                double val2 = chr.getChromosome(i + 1);
-                fitness += 100 * pow((pow(val1 + 1, 2) - (val2 + 1)), 2) + pow(val1, 2);
-            }
-            return fitness + 390.0;
+            return rosenbrock(chr);
         case Sphere:
-            for (int i = 0; i < chr.GetSize(); i++)
-            {
-                double val = chr.getChromosome(i);
-                fitness += pow(val, 2);
-            }
-            return fitness - 450.0;
+            return sphere(chr);
         case Schwefel:
-            for (int i = 0; i < chr.GetSize(); i++)
-            {
-                double val = 0.0;
-                for (int j = 0; j <= i; j++)
-                    val += chr.getChromosome(j);
-                fitness += pow(val, 2);
-            }
-            return fitness - 450.0;
+            return schwefel(chr);
         case Rastrigin:
-            for (int i = 0; i < chr.GetSize(); i++)
-            {
-                double val = chr.getChromosome(i);
-                fitness += (pow(val, 2) - 10 * cos(2 * M_PI * val) + 10);
-            }
-            return fitness - 330.0;
+            return rastrigin(chr);
 
         /* Binary encoding problems */
         case Onemax:
-            for (int i = 0; i < chr.GetSize(); i++)
-                fitness += chr.getChromosome(i);
-            return fitness;
+            return onemax(chr);
         case Royalroad:
-            for (int i = 0; i < chr.GetSize() / royal_number; i++)
-            {
-                bool sol = true;
-                for (int j = 0; j < royal_number; j++)
-                    if (chr.getChromosome(i + j) != 1)
-                    {
-                        sol = false;
-                        break;
-                    }
-                if (true == sol)
-                    fitness += royal_number;
-            }
-            return fitness;
+            return royalroad(chr);
         case NKlandscape:
-            return fitness;
+            return nk(chr);
         case Deceptive:
-            for (int i = 0; i < chr.GetSize(); i++)
-                fitness += chr.getChromosome(i);
-
-            if (fitness == chr.GetSize())
-                return 0;
-            else
-                return fitness - 1;
+            return deceptive(chr);
         }
     }
     void setParms(const int &num_k, const int &royal_number)
     {
         this->num_k = num_k;
         this->royal_number = royal_number;
+    }
+    double rosenbrock(const Chromosome &chr)
+    {
+        double fitness = 0.0;
+        for (int i = 0; i < chr.GetSize() - 1; i++)
+        {
+            double val1 = chr.getChromosome(i);
+            double val2 = optimalSol->getChromosome(i);
+            double diff1 = chr.getChromosome(i) - optimalSol->getChromosome(i);
+            double diff2 = chr.getChromosome(i + 1) - optimalSol->getChromosome(i + 1);
+            fitness += 100 * pow((pow(diff1 + 1, 2) - (diff2 + 1)), 2) + pow(diff1, 2);
+        }
+        return fitness + 390.0;
+    }
+    double sphere(const Chromosome &chr)
+    {
+        double fitness = 0.0;
+        for (int i = 0; i < chr.GetSize(); i++)
+        {
+            double diff = chr.getChromosome(i) - optimalSol->getChromosome(i);
+            fitness += pow(diff, 2);
+        }
+        return fitness - 450.0;
+    }
+    double schwefel(const Chromosome &chr)
+    {
+        double fitness = 0.0;
+        for (int i = 0; i < chr.GetSize(); i++)
+        {
+            double val = 0.0;
+            for (int j = 0; j <= i; j++)
+            {
+                double diff = chr.getChromosome(j) - optimalSol->getChromosome(j);
+                val += diff;
+            }
+            fitness += pow(val, 2);
+        }
+        return fitness - 450.0;
+    }
+    double rastrigin(const Chromosome &chr)
+    {
+        double fitness = 0.0;
+        for (int i = 0; i < chr.GetSize(); i++)
+        {
+            double diff = chr.getChromosome(i) - optimalSol->getChromosome(i);
+            fitness += (pow(diff, 2) - 10 * cos(2 * M_PI * diff) + 10);
+        }
+        return fitness - 330.0;
+    }
+    double onemax(const Chromosome &chr)
+    {
+        double fitness = 0.0;
+        for (int i = 0; i < chr.GetSize(); i++)
+            fitness += chr.getChromosome(i);
+        return fitness;
+    }
+    double royalroad(const Chromosome &chr)
+    {
+        double fitness = 0.0;
+        for (int i = 0; i < chr.GetSize() / royal_number; i++)
+        {
+            bool sol = true;
+            for (int j = 0; j < royal_number; j++)
+                if (chr.getChromosome(i + j) != 1)
+                {
+                    sol = false;
+                    break;
+                }
+            if (true == sol)
+                fitness += royal_number;
+        }
+        return fitness;
+    }
+    double nk(const Chromosome &chr)
+    {
+        if (true == nk_first)
+        {
+            int powerOfK = pow(num_k, 2);
+            landscape = new int *[chr.GetSize()];
+            for (int i = 0; i < chr.GetSize(); i++)
+                landscape[i] = new int[num_k * 2];
+
+            for (int i = 0; i < chr.GetSize(); i++)
+            {
+                for (int j = 0; j < pow(num_k, 2) * 2; j++)
+                    landscape[i][j] = ((double)rand() / RAND_MAX);
+            }
+            nk_first = false;
+        }
+        else
+        {
+            double fitness = 0.0;
+
+            for (int i = 0; i < chr.GetSize(); i++)
+            {
+                int binary = 0;
+                int k = num_k;
+
+                for (int j = 0; j < num_k + 1; j++)
+                {
+                    int num = 0;
+                    if (i + j >= chr.GetSize())
+                        num = (i + j) % chr.GetSize();
+                    else
+                        num = i + j;
+                    binary += (chr.getChromosome(num) * pow(k, 2));
+                    k--;
+                }
+                fitness += landscape[i][binary];
+            }
+            return fitness;
+        }
+    }
+
+    double deceptive(const Chromosome &chr)
+    {
+        double fitness = 0.0;
+        for (int i = 0; i < chr.GetSize(); i++)
+            fitness += chr.getChromosome(i);
+
+        if (fitness == chr.GetSize())
+            return 0;
+        else
+            return fitness - 1;
+        return fitness;
     }
 };
