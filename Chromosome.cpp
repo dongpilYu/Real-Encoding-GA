@@ -1,5 +1,4 @@
 #include "Chromosome.h"
-#include <iostream>
 
 Chromosome::Chromosome()
 {
@@ -15,9 +14,8 @@ Chromosome &Chromosome::operator=(const Chromosome &other)
     this->size = other.size;
     this->fitness = other.fitness;
     for (int i = 0; i < size; i++)
-    {
         this->chr[i] = other.chr[i];
-    }
+
     return *this;
 }
 Chromosome::~Chromosome()
