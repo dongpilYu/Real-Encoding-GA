@@ -189,7 +189,7 @@ struct Constraint
         {
             bool sol = true;
             for (int j = 0; j < royal_number; j++)
-                if (chr.getChromosome(i + j) != 1)
+                if (chr.getChromosome(royal_number * i + j) != 1)
                 {
                     sol = false;
                     break;
