@@ -35,10 +35,10 @@ void GeneticAlgorithm::SetRandomSeed()
 void GeneticAlgorithm::SetConstraints(Constraint &constraint, const int &chromosome_size, const int &pr, const int &royal_number, const int &num_k)
 {
     if (BinValued)
-        constraint.setParms(num_k, royal_number);
+        constraint.setParms(num_k, royal_number, chromosome_size);
     else
         log.Write(constraint.Make_optimal_solution(chromosome_size));
-    pop.SetConstraints(constraint, pr);
+    pop.SetConstraints(constraint);
 }
 
 // Run the genetic algorithm
