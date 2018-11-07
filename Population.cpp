@@ -23,12 +23,18 @@ Population::~Population(void)
     }
 
     pop.clear();
+
+    if (constraintType._function == Constraint::NKlandscape)
+    {
+        for (int i = 0; i < chromosome_size; i++)
+            delete constraintType.landscape[i];
+        delete constraintType.landscape;
+    }
 }
 
-void Population::SetConstraints(Constraint &constraint, const int &pr)
+void Population::SetConstraints(Constraint &constraint)
 {
     constraintType = constraint;
-    problem_type = pr;
 }
 void Population::setChromosomeSize(const int &size)
 {
@@ -170,7 +176,7 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome)
         if (i == 0)
             bestFitness = fitness;
 
-        if (problem_type < 5)
+        if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel)
         {
             if (fitness < bestFitness)
             {
