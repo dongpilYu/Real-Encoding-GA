@@ -10,7 +10,8 @@ struct Constraint
     Chromosome *optimalSol;
 
     int num_k = 0, royal_number = 0;
-    int **landscape;
+    int chromosome_size;
+    double **landscape;
     bool nk_first = true;
 
     // max, min, optimalSol은 실수 인코딩 문제를 위한 부분
@@ -34,21 +35,6 @@ struct Constraint
     Constraint(void) {}
     ~Constraint(void)
     {
-        switch (_function)
-        {
-        case Rosenbrock:
-        case Sphere:
-        case Schwefel:
-        case Rastrigin:
-            delete optimalSol;
-        case NKlandscape:
-            for (int i = 0; i < optimalSol->GetSize(); i++)
-                delete landscape[i];
-            delete landscape;
-            break;
-        default:
-            break;
-        }
     }
     Constraint(Function f) : _function(f)
     {
@@ -124,10 +110,11 @@ struct Constraint
             return deceptive(chr);
         }
     }
-    void setParms(const int &num_k, const int &royal_number)
+    void setParms(const int &num_k, const int &royal_number, const int &chromosome_size)
     {
         this->num_k = num_k;
         this->royal_number = royal_number;
+        this->chromosome_size = chromosome_size;
     }
     double rosenbrock(const Chromosome &chr)
     {
@@ -204,13 +191,13 @@ struct Constraint
         if (true == nk_first)
         {
             int powerOfK = pow(num_k, 2);
-            landscape = new int *[chr.GetSize()];
+            landscape = new double *[chr.GetSize()];
             for (int i = 0; i < chr.GetSize(); i++)
-                landscape[i] = new int[num_k * 2];
+                landscape[i] = new double[powerOfK * 2];
 
             for (int i = 0; i < chr.GetSize(); i++)
             {
-                for (int j = 0; j < pow(num_k, 2) * 2; j++)
+                for (int j = 0; j < powerOfK * 2; j++)
                     landscape[i][j] = ((double)rand() / RAND_MAX);
             }
             nk_first = false;
