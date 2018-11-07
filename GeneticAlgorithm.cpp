@@ -44,20 +44,23 @@ void GeneticAlgorithm::SetConstraints(Constraint &constraint, const int &chromos
 // Run the genetic algorithm
 void GeneticAlgorithm::Run()
 {
-    for (int i = 0; i < number_iterations; i++)
+    bool findBest = false;
+    for (int i = 0; i < number_iterations + 1; i++)
     {
         if (BinValued)
         {
             if (bestFitness == chromosome_size)
-                break;
+                findBest = true;
         }
         else
         {
             if (bestFitness == 0)
-                break;
+                findBest = true;
         }
         // LogResult(pop);
-        LogResult(Evaluate(), i);
+        LogResult(Evaluate(), i, findBest);
+        if (true == findBest)
+            break;
         Select();
         Crossover();
         Mutate();
@@ -204,18 +207,23 @@ void GeneticAlgorithm::LogResult(const Population &pop)
         log.Write((chrs.at(i)));
 }
 void GeneticAlgorithm::LogResult(const double &result,
-                                 const int &iter)
+                                 const int &iter, bool findBest)
 {
-    if (iter % epoch == 0)
+    if (findBest)
     {
         std::stringstream ss;
-        // ss << iter << "\t" << result << "\n";
         ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
         log.Write((char *)ss.str().c_str());
-    }
-
-    if (iter % epoch == 0 || iter < epoch)
-    {
         std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+    }
+    else
+    {
+        if (iter % epoch == 0 || iter < epoch)
+        {
+            std::stringstream ss;
+            ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+            log.Write((char *)ss.str().c_str());
+            std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+        }
     }
 }
