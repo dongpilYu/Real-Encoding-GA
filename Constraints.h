@@ -10,10 +10,8 @@ struct Constraint
     Chromosome *optimalSol;
 
     int num_k = 0, royal_number = 0;
-    int chromosome_size;
     double **landscape;
     bool nk_first = true;
-
     // max, min, optimalSol은 실수 인코딩 문제를 위한 부분
     // 바이너리 인코딩 문제라면, 0, 0, NULL인 상태를 유지한다.
     // 마찬가지로, num_k, landscape, nk_first, royal_number는
@@ -33,24 +31,22 @@ struct Constraint
 
     Function _function;
     Constraint(void) {}
-    ~Constraint(void)
-    {
-    }
+    ~Constraint(void) {}
     Constraint(Function f) : _function(f)
     {
         switch (_function)
         {
         case Rosenbrock:
-            max = 100;
-            min = -100;
+            max = 5;
+            min = -5;
             break;
         case Sphere:
-            max = 100;
-            min = -100;
+            max = 5;
+            min = -5;
             break;
         case Schwefel:
-            max = 100;
-            min = -100;
+            max = 5;
+            min = -5;
             break;
         case Rastrigin:
             max = 5;
@@ -66,30 +62,33 @@ struct Constraint
         optimalSol = new Chromosome(chromosome_size);
         for (int i = 0; i < chromosome_size; i++)
         {
+            /*
             double value = rand() / (double(RAND_MAX) + 1) * max;
             if (rand() % 2 == 1)
                 value = value * -1;
-            // constraintType.max와 constraintType.min이 부호만 다르기 때문에
             optimalSol->setChromosome(i, value);
+            */
+            optimalSol->setChromosome(i, 0);
         }
-
+        // optimalSol->setChromosomeSize(chromosome_size);
+        // optimalSol은 적합도와 염색체 크기 필드가 비워져 있다.
         return optimalSol;
     }
     double Fitness_with_noise(const Chromosome &chr)
     {
         double fitness = Fitness(chr);
-
+        double fitness_with_noise = 0.0;
         std::default_random_engine generator;
         std::normal_distribution<double> distribution(0, 0.1);
-        fitness += distribution(generator);
+        fitness_with_noise = fitness + distribution(generator);
 
-        return fitness;
+        return fitness_with_noise;
     }
     double Fitness(const Chromosome &chr)
     {
         switch (_function)
         {
-        /* Real encoding problem */
+        /* Real encoding problems */
         case Rosenbrock:
             return rosenbrock(chr);
         case Sphere:
@@ -110,15 +109,15 @@ struct Constraint
             return deceptive(chr);
         }
     }
-    void setParms(const int &num_k, const int &royal_number, const int &chromosome_size)
+    void setParms(const int &num_k, const int &royal_number)
     {
         this->num_k = num_k;
         this->royal_number = royal_number;
-        this->chromosome_size = chromosome_size;
     }
     double rosenbrock(const Chromosome &chr)
     {
         double fitness = 0.0;
+
         for (int i = 0; i < chr.GetSize() - 1; i++)
         {
             double diff1 = chr.getChromosome(i) - optimalSol->getChromosome(i);
@@ -130,6 +129,7 @@ struct Constraint
     double sphere(const Chromosome &chr)
     {
         double fitness = 0.0;
+
         for (int i = 0; i < chr.GetSize(); i++)
         {
             double diff = chr.getChromosome(i) - optimalSol->getChromosome(i);
@@ -140,6 +140,7 @@ struct Constraint
     double schwefel(const Chromosome &chr)
     {
         double fitness = 0.0;
+
         for (int i = 0; i < chr.GetSize(); i++)
         {
             double val = 0.0;
@@ -155,6 +156,7 @@ struct Constraint
     double rastrigin(const Chromosome &chr)
     {
         double fitness = 0.0;
+
         for (int i = 0; i < chr.GetSize(); i++)
         {
             double diff = chr.getChromosome(i) - optimalSol->getChromosome(i);
