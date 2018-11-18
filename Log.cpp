@@ -19,11 +19,10 @@ void Log::Write(char *txt)
 
 void Log::Write(const Chromosome *chr)
 {
-    m_stream << "Optimal chromosome : ";
     for (int i = 0; i < chr->GetSize(); i++)
         m_stream << chr->getChromosome(i) << ' ';
 
-    m_stream << std::endl;
+    m_stream << chr->GetFitness() << std::endl;
 }
 
 // Open the log file for writing
