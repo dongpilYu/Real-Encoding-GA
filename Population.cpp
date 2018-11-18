@@ -31,7 +31,10 @@ Population::~Population(void)
         delete constraintType.landscape;
     }
 }
-
+const Constraint &Population::GetConstraints() const
+{
+    return constraintType;
+}
 void Population::SetConstraints(Constraint &constraint)
 {
     constraintType = constraint;
@@ -86,10 +89,12 @@ void Population::ExtendedBoxCrossover(const int &index1, const int &index2, cons
     Chromosome *dad = pop.at(index2);
 
     enum parent pa;
-    if (mom->GetFitness() > dad->GetFitness())
+
+    if (mom->GetFitness() < dad->GetFitness())
         pa = mama;
     else
         pa = dady;
+
     // crossover를 통해 얻은 자식을 적합도가 낮은 부모로 대체
     for (int i = 0; i < chromosome_size; i++)
     {
@@ -105,7 +110,7 @@ void Population::ExtendedBoxCrossover(const int &index1, const int &index2, cons
         if (extendedMax > constraintType.max)
             extendedMax = constraintType.max;
 
-        double z = rand() / (double(RAND_MAX) + 1) * (extendedMax - extendedMin) + extendedMax;
+        double z = rand() / (double(RAND_MAX) + 1) * (extendedMax - extendedMin) + extendedMin;
         if (pa == mama)
             dad->setChromosome(i, z);
         else
@@ -157,25 +162,37 @@ void Population::BitwiseMutation(const int &index, const int &mutation_rate)
 }
 
 // Evaluate the population fitnesses
-double Population::EvaluatePopulation(Chromosome *bestChromosome)
+double Population::EvaluatePopulation(Chromosome *bestChromosome, Chromosome *worstChromosome, int *bestIdx, int *worstIdx)
 {
     double totalFitness = 0.0;
     double aveFitness = 0.0;
+
     double bestFitness = infinity;
+    double worstFitness = minus_infinity;
     int bestFitnessIndex = 0;
+    int worstFitnessIndex = 0;
+
+    switch (constraintType._function)
+    {
+    case Constraint::Onemax:
+    case Constraint::Royalroad:
+    case Constraint::NKlandscape:
+    case Constraint::Deceptive:
+        bestFitness = minus_infinity;
+        worstFitness = infinity;
+    }
 
     for (int i = 0; i < (int)pop.size(); i++)
     {
         double fitness = CalcChromosomeFitness(i);
         Chromosome *chr = pop.at(i);
         chr->setFitness(fitness);
-        // Output the chromosome
-        // chr->Print( i );
-        // totalFitness += fitness;
-        // Store best solution
-        if (i == 0)
-            bestFitness = fitness;
 
+        if (i == 0)
+        {
+            bestFitness = fitness;
+            worstFitness = fitness;
+        }
         if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel)
         {
             if (fitness < bestFitness)
@@ -183,6 +200,12 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome)
                 bestFitness = fitness;
                 bestFitnessIndex = i;
                 bestChromosome = chr;
+            }
+            if (fitness > worstFitness)
+            {
+                worstFitness = fitness;
+                worstFitnessIndex = i;
+                worstChromosome = chr;
             }
         }
 
@@ -194,9 +217,16 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome)
                 bestFitnessIndex = i;
                 bestChromosome = chr;
             }
+            if (fitness < worstFitness)
+            {
+                worstFitness = fitness;
+                worstFitnessIndex = i;
+                worstChromosome = chr;
+            }
         }
     }
-    //aveFitness = totalFitness / pop.size();
+    *bestIdx = bestFitnessIndex;
+    *worstIdx = worstFitnessIndex;
     return bestFitness;
 }
 
@@ -233,7 +263,8 @@ Chromosome *Population::CreateRandomChromosome_bin()
 }
 double Population::CalculateFitnessFunction(const Chromosome &chr)
 {
-    return constraintType.Fitness(chr);
+    return constraintType.Fitness_with_noise(chr);
+    // 이 부분을 Fitness()로 하면 noise가 섞이지 않은 적합도가 반환된다.
 }
 
 double Population::GetChromosomeFitness(const int &index) const

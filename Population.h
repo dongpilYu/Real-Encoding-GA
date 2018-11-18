@@ -20,11 +20,11 @@ class Population
     void OnePointCrossover(const int &index1, const int &index2, const int &point);
     void GaussianMutation(const int &index, const int &mutationRate);
     void BitwiseMutation(const int &index, const int &mutationRate);
-    double EvaluatePopulation(Chromosome *bestChromosome);
+    double EvaluatePopulation(Chromosome *bestChromosome, Chromosome *worstChromosome, int *bestIdx, int *worstIdx);
     double CalcChromosomeFitness(const int &index);
-
-    double GetChromosomeFitness(const int &index) const;
     void CopyChromosome(const int &source, const int &dest);
+    const Constraint &GetConstraints() const;
+    double GetChromosomeFitness(const int &index) const;
     std::vector<Chromosome *> GetPopulation() const;
     enum parent
     {
