@@ -72,7 +72,7 @@ make
 <br>
 <br>
 <br>
- * Example
+* Example
 ```shell
 ./GAfunction.exe 0 20 100 10000 1 50 2 -1 -1
 # Real valued problem, Shifted Rosenbrock problem
