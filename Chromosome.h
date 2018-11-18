@@ -18,8 +18,6 @@ class Chromosome
     void setChromosome(const int &idx, const int &value);
     void setChromosomeSize(const int &size);
 
-    void Print(const int &index) const;
-
     Chromosome &operator=(const Chromosome &other);
 
   private:

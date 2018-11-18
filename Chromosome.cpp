@@ -55,6 +55,3 @@ int Chromosome::GetSize() const
 {
     return size;
 }
-void Chromosome::Print(const int &index) const
-{
-}
