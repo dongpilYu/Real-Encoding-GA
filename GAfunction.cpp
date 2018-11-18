@@ -8,7 +8,6 @@
 
 const int precision = 6;
 const int epoch = 10;
-const std::string path = "Log.txt";
 
 Constraint typeOfProblem(const int &problem_type);
 
@@ -25,6 +24,7 @@ int main(int argc, char **argv)
     const int mutation_rate = atoi(argv[7]); // For Gaussian mutation, SD is fixed to (upper - lower) / 10
     const int royal_number = atoi(argv[8]);
     const int num_k = atoi(argv[9]);
+    const std::string path = (argv[10]);
 
     GeneticAlgorithm ga;
     Constraint constraint = typeOfProblem(problem_type);
