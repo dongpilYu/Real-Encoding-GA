@@ -13,6 +13,7 @@
     * ```Gaussian Mutation``` : Mutation rate : 0.02, Mean : 0, Standard deviation : (Upper bound - Lower bound) / 10
     * ```Tournament Selection``` : Tourament size : Population size / 10
     * ```Steady state genetic algorithm```
+    * ```Elitism```
 * Problems
     * ```Shifted Rosenbrock``` : A non-convex function
     * ```Shifted Sphere``` : A continuous, convex and unimal function
@@ -25,6 +26,7 @@
     * ```Bitwise Mutation``` :  Mutation rate : 0.02
     * ```Tournament Selection``` : Tourament size : Population size / 10
     * ```Steady state genetic algorithm```
+    * ```Elitism```
 * Problems
     * ```One Max```
     * ```Royal Road```
