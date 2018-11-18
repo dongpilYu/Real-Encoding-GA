@@ -7,11 +7,13 @@
 GeneticAlgorithm::GeneticAlgorithm()
 {
     bestChromosome = new Chromosome();
+    worstChromosome = new Chromosome();
     SetRandomSeed();
 }
 GeneticAlgorithm::~GeneticAlgorithm()
 {
     delete bestChromosome;
+    delete worstChromosome;
 }
 void GeneticAlgorithm::Initialize(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const std::string &path, Constraint &constraint)
 {
@@ -35,9 +37,10 @@ void GeneticAlgorithm::SetRandomSeed()
 void GeneticAlgorithm::SetConstraints(Constraint &constraint, const int &chromosome_size, const int &pr, const int &royal_number, const int &num_k)
 {
     if (BinValued)
-        constraint.setParms(num_k, royal_number, chromosome_size);
+        constraint.setParms(num_k, royal_number);
     else
-        log.Write(constraint.Make_optimal_solution(chromosome_size));
+        constraint.Make_optimal_solution(chromosome_size);
+    //log.Write(constraint.Make_optimal_solution(chromosome_size));
     pop.SetConstraints(constraint);
 }
 
@@ -45,36 +48,51 @@ void GeneticAlgorithm::SetConstraints(Constraint &constraint, const int &chromos
 void GeneticAlgorithm::Run()
 {
     bool findBest = false;
+    double best = 0.0;
+    Constraint constraint = pop.GetConstraints();
+
+    switch (constraint._function)
+    {
+    case Constraint::Schwefel:
+    case Constraint::Sphere:
+        best = -450.0;
+        break;
+    case Constraint::Rosenbrock:
+        best = 390.0;
+        break;
+    case Constraint::Rastrigin:
+        best = -330.0;
+        break;
+    default:
+        best = chromosome_size;
+    }
     for (int i = 0; i < number_iterations + 1; i++)
     {
-        if (BinValued)
-        {
-            if (bestFitness == chromosome_size)
-                findBest = true;
-        }
-        else
-        {
-            if (bestFitness == 0)
-                findBest = true;
-        }
-        // LogResult(pop);
+        if (bestFitness == best)
+            findBest = true;
+
         LogResult(Evaluate(), i, findBest);
-        if (true == findBest)
+        LogResult(pop);
+        if (findBest)
             break;
         Select();
         Crossover();
         Mutate();
+        Elitism();
     }
 }
-
 // Create initial random population of chromosomes
 void GeneticAlgorithm::CreatePopulation(const int &binaryOrNot)
 {
     pop.CreateRandomPopulation(population_size, binaryOrNot);
 }
+void GeneticAlgorithm::Elitism()
+{
+    pop.CopyChromosome(best_idx, worst_idx);
+}
 double GeneticAlgorithm::Evaluate()
 {
-    double best = pop.EvaluatePopulation(bestChromosome);
+    double best = pop.EvaluatePopulation(bestChromosome, worstChromosome, &best_idx, &worst_idx);
 
     if (BinValued) // maximization problem
     {
@@ -128,8 +146,6 @@ void GeneticAlgorithm::Mutate()
 {
     for (int i = 0; i < population_size; i++)
     {
-        int r = rand() % 100;
-
         if (BinValued)
             pop.BitwiseMutation(i, mutation_rate);
         else
@@ -211,18 +227,18 @@ void GeneticAlgorithm::LogResult(const double &result,
 {
     if (findBest)
     {
-        std::stringstream ss;
-        ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
-        log.Write((char *)ss.str().c_str());
+        //std::stringstream ss;
+        //ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+        //log.Write((char *)ss.str().c_str());
         std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
     }
     else
     {
         if (iter % epoch == 0 || iter < epoch)
         {
-            std::stringstream ss;
-            ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
-            log.Write((char *)ss.str().c_str());
+            //std::stringstream ss;
+            //ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+            //log.Write((char *)ss.str().c_str());
             std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
         }
     }

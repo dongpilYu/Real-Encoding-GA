@@ -22,6 +22,7 @@ class GeneticAlgorithm
     void Crossover();
     void Mutate();
     void Select();
+    void Elitism();
     void SetParameters(const int &binaryOrNot, const int &problem_type, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch);
     void SetParameters(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch);
     void SetRandomSeed();
@@ -46,7 +47,9 @@ class GeneticAlgorithm
 
     double bestFitness;
     Chromosome *bestChromosome;
-
+    Chromosome *worstChromosome;
+    int best_idx;
+    int worst_idx;
     Population pop;
     Log log;
 };
