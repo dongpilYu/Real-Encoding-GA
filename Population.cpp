@@ -263,7 +263,8 @@ Chromosome *Population::CreateRandomChromosome_bin()
 }
 double Population::CalculateFitnessFunction(const Chromosome &chr)
 {
-    return constraintType.Fitness_with_noise(chr);
+    return constraintType.Fitness(chr);
+    // return constraintType.Fitness_with_noise(chr);
     // 이 부분을 Fitness()로 하면 noise가 섞이지 않은 적합도가 반환된다.
 }
 
