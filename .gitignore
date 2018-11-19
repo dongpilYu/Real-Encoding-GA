@@ -1,6 +1,4 @@
 *.exe
-
 .vscode/
-
 data/
 data1/
