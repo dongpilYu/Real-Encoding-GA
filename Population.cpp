@@ -171,9 +171,9 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
 	int bestFitnessIndex = 0;
     int worstFitnessIndex = 0;
 
-	char toParser[30000];
-	char everySol[10000];
-	char type[30];
+	char toParser[300000];
+	char everySol[100000];
+	char type[100];
 
 	memset(toParser,0,sizeof(toParser));
 	memset(everySol,0,sizeof(everySol));
@@ -232,8 +232,6 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
 	sprintf(toParser, "python3 fitness.py --solution %s --genes %d --type %s", everySol, chromosome_size, type); 
 	std::cout << toParser << std::endl;
 	system(toParser);
-
-
 	FILE* fp = fopen("result", "r");
 	for(int i=0;i<(int)pop.size();i++)
 	{
