@@ -20,7 +20,11 @@ parser.add_argument(
 
 FLAGS, unparsed = parser.parse_known_args()
 
-model_path = "/home/dong/181112/DNN-tensorflow/DNN_Models-4/rastrigin4.csv/"
+print(FLAGS.solution)
+print(FLAGS.type)
+print(FLAGS.genes)
+
+model_path = "./TensorFlow/DNN_Models-" + str(FLAGS.genes) + "-noisy/" + FLAGS.type + str(FLAGS.genes) + ".csv/"
 meta_file = '{}/model.meta'.format(model_path)
 ckpt_file = '{}/checkpoint'.format(model_path)
 
@@ -32,6 +36,7 @@ for i in range(0, len(input_xx)):
         input_x = input_xx[i].split(',')
     else:
         input_x = np.vstack([input_x, input_xx[i].split(',')])
+    print(input_x)
 
 input_x = np.array(input_x).reshape((len(input_xx),FLAGS.genes))
 input_y = np.zeros((len(input_xx), 1))
