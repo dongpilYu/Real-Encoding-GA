@@ -36,13 +36,9 @@ for i in range(0, len(input_xx)):
         input_x = input_xx[i].split(',')
     else:
         input_x = np.vstack([input_x, input_xx[i].split(',')])
-    print(input_x)
 
 input_x = np.array(input_x).reshape((len(input_xx),FLAGS.genes))
 input_y = np.zeros((len(input_xx), 1))
-
-print(input_x)
-print(input_y)
 
 with tf.device('/device:{}:1'.format('CPU')):
     config = tf.ConfigProto(allow_soft_placement=True)
