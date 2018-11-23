@@ -71,8 +71,8 @@ void GeneticAlgorithm::Run()
         if (bestFitness == best)
             findBest = true;
 
-        LogResult(Evaluate(), i, findBest);
-        LogResult(pop);
+        LogResult(Evaluate_with_ML(), i, findBest);
+        //LogResult(pop);
         if (findBest)
             break;
         Select();
@@ -80,6 +80,7 @@ void GeneticAlgorithm::Run()
         Mutate();
         Elitism();
     }
+
 }
 // Create initial random population of chromosomes
 void GeneticAlgorithm::CreatePopulation(const int &binaryOrNot)
@@ -90,6 +91,24 @@ void GeneticAlgorithm::Elitism()
 {
     pop.CopyChromosome(best_idx, worst_idx);
 }
+
+double GeneticAlgorithm::Evaluate_with_ML()
+{
+	double best = pop.EvaluatePopulation_with_ML(bestChromosome, worstChromosome, &best_idx, &worst_idx);
+
+	if(BinValued) // maximization problem
+	{
+		if(best > bestFitness)
+			bestFitness = best;
+	}
+	else // minimization problem
+	{
+		if(best < bestFitness)
+			bestFitness = best;
+	}
+	return bestFitness;
+}
+
 double GeneticAlgorithm::Evaluate()
 {
     double best = pop.EvaluatePopulation(bestChromosome, worstChromosome, &best_idx, &worst_idx);
@@ -227,18 +246,18 @@ void GeneticAlgorithm::LogResult(const double &result,
 {
     if (findBest)
     {
-        //std::stringstream ss;
-        //ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
-        //log.Write((char *)ss.str().c_str());
+        std::stringstream ss;
+        ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+        log.Write((char *)ss.str().c_str());
         std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
     }
     else
     {
-        if (iter % epoch == 0 || iter < epoch)
+        if (iter == 300)//if (iter % epoch == 0 || iter < epoch)
         {
-            //std::stringstream ss;
-            //ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
-            //log.Write((char *)ss.str().c_str());
+            std::stringstream ss;
+            ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+            log.Write((char *)ss.str().c_str());
             std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
         }
     }
