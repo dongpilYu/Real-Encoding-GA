@@ -17,6 +17,7 @@ struct Constraint
     // 마찬가지로, num_k, landscape, nk_first, royal_number는
     // 바이너리 인코딩 문제를 위한 부분으로
     // 실수 인코딩 문제라면 0, 0, NULL, true인 상태를 유지한다.
+    
     enum Function
     {
         Rosenbrock,
