@@ -19,6 +19,7 @@ class GeneticAlgorithm
   private:
     void CreatePopulation(const int &pr);
     double Evaluate();
+    double Evaluate_with_ML();
     void Crossover();
     void Mutate();
     void Select();

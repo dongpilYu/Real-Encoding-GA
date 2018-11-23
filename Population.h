@@ -3,6 +3,8 @@
 #include "Chromosome.h"
 #include "Constraints.h"
 #include <vector>
+#include <cstring>
+#include <cstdio>
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -21,6 +23,7 @@ class Population
     void GaussianMutation(const int &index, const int &mutationRate);
     void BitwiseMutation(const int &index, const int &mutationRate);
     double EvaluatePopulation(Chromosome *bestChromosome, Chromosome *worstChromosome, int *bestIdx, int *worstIdx);
+    double EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromosome *worstChromosome, int *bestIdx, int *worstIdx);
     double CalcChromosomeFitness(const int &index);
     void CopyChromosome(const int &source, const int &dest);
     const Constraint &GetConstraints() const;
