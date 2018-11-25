@@ -163,66 +163,67 @@ void Population::BitwiseMutation(const int &index, const int &mutation_rate)
 
 double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromosome *worstChromosome, int *bestIdx, int *worstIdx)
 {
-	double totalFitness = 0.0;
-	double aveFitness = 0.0;
-
-	double bestFitness = infinity;
-	double worstFitness = minus_infinity;
-	int bestFitnessIndex = 0;
+    double totalFitness = 0.0;
+    double aveFitness = 0.0;
+    double bestFitness = infinity;
+    double worstFitness = minus_infinity;
+    int bestFitnessIndex = 0;
     int worstFitnessIndex = 0;
+    char toParser[30000];
+    char everySol[10000];
+    char type[100];
+    memset(toParser, 0, sizeof(toParser));
+    memset(everySol, 0, sizeof(everySol));
+    memset(type, 0, sizeof(type));
 
-	char toParser[3000];
-	char everySol[1000];
-	char type[100];
+    switch (constraintType._function)
+    {
+    case Constraint::Onemax:
+        strcpy(type, "onemax");
+        bestFitness = minus_infinity;
+        worstFitness = infinity;
+        break;
+    case Constraint::Royalroad:
+        strcpy(type, "royal");
+        bestFitness = minus_infinity;
+        worstFitness = infinity;
+        break;
+    case Constraint::NKlandscape:
+        strcpy(type, "nk");
+        bestFitness = minus_infinity;
+        worstFitness = infinity;
+        break;
+    case Constraint::Deceptive:
+        strcpy(type, "deceptive");
+        bestFitness = minus_infinity;
+        worstFitness = infinity;
+        break;
+    case Constraint::Sphere:
+        strcpy(type, "sphere");
+        break;
+    case Constraint::Schwefel:
+        strcpy(type, "schwefel");
+        break;
+    case Constraint::Rosenbrock:
+        strcpy(type, "rosenbrock");
+        break;
+    case Constraint::Rastrigin:
+        strcpy(type, "rastrigin");
+        break;
+    }
 
-	memset(toParser,0,sizeof(toParser));
-	memset(everySol,0,sizeof(everySol));
-	memset(type,0,sizeof(type));
-	switch (constraintType._function)
-	{
-	case Constraint::Onemax:
-		strcpy(type, "onemax");
-		bestFitness = minus_infinity;
-		worstFitness = infinity;
-		break;
-	case Constraint::Royalroad:
-		strcpy(type, "royal");
-		bestFitness = minus_infinity;
-		worstFitness = infinity;			
-		break;
-	case Constraint::NKlandscape:
-		strcpy(type, "nk");
-		bestFitness = minus_infinity;
-		worstFitness = infinity;
-		break;
-	case Constraint::Deceptive:
-		strcpy(type, "deceptive");
-		bestFitness = minus_infinity;
-		worstFitness = infinity;
-		break;	
-	case Constraint::Sphere:
-		strcpy(type,"sphere");
-		break;
-	case Constraint::Schwefel:
-		strcpy(type, "schwefel");
-		break;
-	case Constraint::Rosenbrock:
-		strcpy(type, "rosenbrock");
-		break;
-	case Constraint::Rastrigin:
-		strcpy(type, "rastrigin");
-		break;
-	}
-
-	for(int i=0;i<(int)pop.size();i++)
-	{
+    for (int i = 0; i < (int)pop.size(); i++)
+    {
         Chromosome *chr = pop.at(i);
-        for(int j=0;j<chromosome_size;j++)
+
+        for (int j = 0; j < chromosome_size; j++)
         {
-	        char str[10];
-            sprintf(str, "%lf", chr->getChromosome(j));
-			if(j != chromosome_size-1)
-				strcat(str, ",");
+            char str[10];
+            memset(str, 0, sizeof(str));
+            sprintf(str, "%d", chr->getChromosome(j));
+            //잠깐
+			if (j != chromosome_size - 1)
+                strcat(str, ",");
             strcat(everySol, str);
         }
 		if(i != pop.size()-1)
