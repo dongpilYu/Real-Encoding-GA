@@ -71,8 +71,10 @@ void GeneticAlgorithm::Run()
         if (bestFitness == best)
             findBest = true;
 
-	Evaluate_with_ML();
-        //LogResult(pop);
+        Evaluate_with_ML();
+	    //LogResult(Evaluate_with_ML(),number_iterations, findBest);
+	    //LogResult(Evaluate(),number_iterations, findBest);
+	    //LogResult(pop);
         if (findBest)
             break;
         Select();
@@ -81,6 +83,7 @@ void GeneticAlgorithm::Run()
         Elitism();
     }
     LogResult(Evaluate(), number_iterations, findBest);
+	//LogResult(pop);
 }
 // Create initial random population of chromosomes
 void GeneticAlgorithm::CreatePopulation(const int &binaryOrNot)
@@ -95,7 +98,7 @@ void GeneticAlgorithm::Elitism()
 double GeneticAlgorithm::Evaluate_with_ML()
 {
 	double best = pop.EvaluatePopulation_with_ML(bestChromosome, worstChromosome, &best_idx, &worst_idx);
-
+    
 	if(BinValued) // maximization problem
 	{
 		if(best > bestFitness)
@@ -112,7 +115,7 @@ double GeneticAlgorithm::Evaluate_with_ML()
 double GeneticAlgorithm::Evaluate()
 {
     double best = pop.EvaluatePopulation(bestChromosome, worstChromosome, &best_idx, &worst_idx);
-
+    bestFitness = 99999999999;
     if (BinValued) // maximization problem
     {
         if (best > bestFitness)
