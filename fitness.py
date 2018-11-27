@@ -20,7 +20,7 @@ parser.add_argument(
 
 FLAGS, unparsed = parser.parse_known_args()
 
-model_path = "./TensorFlow/DNN_Models-" + str(FLAGS.genes) + "-noisy/" + FLAGS.type + str(FLAGS.genes) + ".csv/"
+model_path = "./TensorFlow/DNN_Models-" + str(FLAGS.genes) + "-noisy/" + FLAGS.type + str(FLAGS.genes) + ".csv"
 meta_file = '{}/model.meta'.format(model_path)
 ckpt_file = '{}/checkpoint'.format(model_path)
 
