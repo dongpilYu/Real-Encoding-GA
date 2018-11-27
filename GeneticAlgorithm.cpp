@@ -71,7 +71,7 @@ void GeneticAlgorithm::Run()
         if (bestFitness == best)
             findBest = true;
 
-        LogResult(Evaluate_with_ML(), i, findBest);
+	Evaluate_with_ML();
         //LogResult(pop);
         if (findBest)
             break;
@@ -80,7 +80,7 @@ void GeneticAlgorithm::Run()
         Mutate();
         Elitism();
     }
-
+    LogResult(Evaluate(), number_iterations, findBest);
 }
 // Create initial random population of chromosomes
 void GeneticAlgorithm::CreatePopulation(const int &binaryOrNot)
@@ -249,16 +249,16 @@ void GeneticAlgorithm::LogResult(const double &result,
         std::stringstream ss;
         ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
         log.Write((char *)ss.str().c_str());
-        std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+	//std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
     }
     else
     {
-        if (iter == 300)//if (iter % epoch == 0 || iter < epoch)
+        if (iter % epoch == 0 || iter < epoch)
         {
             std::stringstream ss;
             ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
             log.Write((char *)ss.str().c_str());
-            std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+            //std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
         }
     }
 }

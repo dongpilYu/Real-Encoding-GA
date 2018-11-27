@@ -169,8 +169,8 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
     double worstFitness = minus_infinity;
     int bestFitnessIndex = 0;
     int worstFitnessIndex = 0;
-    char toParser[30000];
-    char everySol[10000];
+    char toParser[110000];
+    char everySol[100000];
     char type[100];
     memset(toParser, 0, sizeof(toParser));
     memset(everySol, 0, sizeof(everySol));
@@ -218,22 +218,20 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
 
         for (int j = 0; j < chromosome_size; j++)
         {
-            char str[10];
+            char str[20];
             memset(str, 0, sizeof(str));
-            sprintf(str, "%d", chr->getChromosome(j));
-            //잠깐
+            sprintf(str, "%.3lf", chr->getChromosome(j));
 			if (j != chromosome_size - 1)
                 strcat(str, ",");
             strcat(everySol, str);
         }
 		if(i != pop.size()-1)
 			strcat(everySol, "/");
-			
 	}
-	std::cout << everySol << std::endl;
-	sprintf(toParser, "python3 fitness.py --solution %s --genes %d --type %s", everySol, chromosome_size, type); 
-	std::cout << toParser << std::endl;
+	sprintf(toParser, "python3 fitness.py --solution [%s] --genes %d --type %s", everySol, chromosome_size, type); 
+	//std::cout << toParser << std::endl;
 	system(toParser);
+
 	FILE* fp = fopen("result", "r");
 	for(int i=0;i<(int)pop.size();i++)
 	{
@@ -387,8 +385,8 @@ Chromosome *Population::CreateRandomChromosome_bin()
 }
 double Population::CalculateFitnessFunction(const Chromosome &chr)
 {
-    // return constraintType.Fitness(chr);
-    return constraintType.Fitness_with_noise(chr);
+	return constraintType.Fitness(chr);
+    //return constraintType.Fitness_with_noise(chr);
     // 이 부분을 Fitness()로 하면 noise가 섞이지 않은 적합도가 반환된다.
 }
 
