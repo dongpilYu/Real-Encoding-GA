@@ -20,15 +20,12 @@ parser.add_argument(
 
 FLAGS, unparsed = parser.parse_known_args()
 
-print(FLAGS.solution)
-print(FLAGS.type)
-print(FLAGS.genes)
-
 model_path = "./TensorFlow/DNN_Models-" + str(FLAGS.genes) + "-noisy/" + FLAGS.type + str(FLAGS.genes) + ".csv/"
 meta_file = '{}/model.meta'.format(model_path)
 ckpt_file = '{}/checkpoint'.format(model_path)
 
-x_ = FLAGS.solution
+x_ = FLAGS.solution.split('[')[1]
+x_ = x_.split(']')[0]
 input_xx = x_.split('/')
 input_x = list()
 for i in range(0, len(input_xx)):
