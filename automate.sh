@@ -1,4 +1,7 @@
-for i in 4 5 6 7 8  
+make
+javac -cp $CLASSPATH fitness.java
+
+for i in 20 25 50 100 
 do
     for j in {1..50}
     do
