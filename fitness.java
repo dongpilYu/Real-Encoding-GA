@@ -20,13 +20,13 @@ public class fitness{
 			// 0101 sphere, 4 
 			int numOfGenes = Integer.parseInt(genes_str);
 
-			String model_path = "../WEKA/SVR_WEKA-small,large (noisy)/rastrigin/smoReg-rastrigin4.model";
-			FileWriter arff = new FileWriter("data.arff");
+			String model_path = "./WEKA/SVR_WEKA-large-noiseless/smoReg-" + problem + genes_str +".model";
+            FileWriter arff = new FileWriter("data.arff");
 
 			arff.write("@relation " + problem + genes_str + "\n");
 			arff.write("\n");
 
-			for(int i=0;i<chromo[0].length();i++)
+			for(int i=0;i<numOfGenes;i++)
 			{
 				arff.write("@attribute " + "f" + String.valueOf(i) + " numeric");
 				arff.write("\n");
@@ -35,11 +35,8 @@ public class fitness{
 			arff.write("@data\n");
 			for(int i=0;i<chromo.length;i++)
 			{
-				for(int j=0;j<chromo[0].length();j++)
-				{
-					arff.write(chromo[i].charAt(j));
-					arff.write(",");
-				}
+				arff.write(chromo[i]);
+				arff.write(",");
 				arff.write("0\n");
 			}
 			arff.close();
@@ -52,7 +49,7 @@ public class fitness{
 			for(int i=0;i<test.numInstances();i++)
 			{
 				double pred = cls.classifyInstance(test.instance(i));
-				fw.write(new Double(pred).toString() + " ");
+                fw.write(new Double(pred).toString() + " ");
 			}
 			fw.close();
 

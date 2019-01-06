@@ -233,11 +233,20 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
                 strcat(str, ",");
             strcat(everySol, str);
         }
+
         if (i != pop.size() - 1)
             strcat(everySol, "/");
     }
-    sprintf(toParser, "python3 fitness.py --solution [%s] --genes %d --type %s", everySol, chromosome_size, type);
-    //std::cout << toParser << std::endl;
+
+    bool TensorFlow = false; // else WEKA
+
+    // everySol : 0.3,2.1,3.2,-0.34/0.31,-4.3,1.32,-0.32
+    // chromosome_size : 4
+    // type : rastrigin
+    if (TensorFlow)
+        sprintf(toParser, "python3 fitness.py --solution [%s] --genes %d --type %s", everySol, chromosome_size, type);
+    else
+        sprintf(toParser, "java fitness %s %s %d", everySol, type, chromosome_size);
     system(toParser);
 
     FILE *fp = fopen("result", "r");
@@ -253,7 +262,7 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
             bestFitness = fitness;
             worstFitness = fitness;
         }
-        if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel || constraintType._function == Constraint::Minimum_sum)
+        if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel)
         {
             if (fitness < bestFitness)
             {
@@ -287,6 +296,7 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
     fclose(fp);
     *bestIdx = bestFitnessIndex;
     *worstIdx = worstFitnessIndex;
+
     return bestFitness;
 }
 
