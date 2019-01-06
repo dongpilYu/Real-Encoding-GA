@@ -136,6 +136,10 @@ void Population::GaussianMutation(const int &index, const int &mutation_rate)
         {
             double z = chr->getChromosome(i);
             z += distribution(generator);
+            if (z > constraintType.max)
+                z = constraintType.max;
+            if (z < constraintType.min)
+                z = constraintType.min;
             chr->setChromosome(i, z);
         }
     }
@@ -198,6 +202,7 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
         bestFitness = minus_infinity;
         worstFitness = infinity;
         break;
+
     case Constraint::Sphere:
         strcpy(type, "sphere");
         break;
@@ -210,6 +215,9 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
     case Constraint::Rastrigin:
         strcpy(type, "rastrigin");
         break;
+    case Constraint::Minimum_sum:
+        strcpy(type, "minimum");
+        break;
     }
 
     for (int i = 0; i < (int)pop.size(); i++)
@@ -221,66 +229,65 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
             char str[20];
             memset(str, 0, sizeof(str));
             sprintf(str, "%.3lf", chr->getChromosome(j));
-			if (j != chromosome_size - 1)
+            if (j != chromosome_size - 1)
                 strcat(str, ",");
             strcat(everySol, str);
         }
-		if(i != pop.size()-1)
-			strcat(everySol, "/");
-	}
-	sprintf(toParser, "python3 fitness.py --solution [%s] --genes %d --type %s", everySol, chromosome_size, type); 
-	//std::cout << toParser << std::endl;
-	system(toParser);
+        if (i != pop.size() - 1)
+            strcat(everySol, "/");
+    }
+    sprintf(toParser, "python3 fitness.py --solution [%s] --genes %d --type %s", everySol, chromosome_size, type);
+    //std::cout << toParser << std::endl;
+    system(toParser);
 
-	FILE* fp = fopen("result", "r");
-	for(int i=0;i<(int)pop.size();i++)
-	{
-		double fitness = 0.0;
-		fscanf(fp, "%lf", &fitness);
-		Chromosome* chr = pop.at(i);
-		chr->setFitness(fitness);
-	
-		if(i == 0)
-		{
-			bestFitness = fitness;
-			worstFitness = fitness;
-		}
-		if(constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel)
-		{
-			if(fitness < bestFitness)
-			{
-				bestFitness = fitness;
-				bestFitnessIndex = i;
-				bestChromosome = chr;
-			}
-			if (fitness > worstFitness)
-		    {
-				worstFitness = fitness;
-				worstFitnessIndex = i;
-				worstChromosome = chr;
-		    }
-		}
-		else
-		{
-		    if(fitness > bestFitness)
-		    {
-				bestFitness = fitness;
-				bestFitnessIndex = i;
-				bestChromosome = chr;
-		    }
-		    if (fitness < worstFitness)
-		    {
-				worstFitness = fitness;
-				worstFitnessIndex = i;
-				worstChromosome = chr;
-		    }
+    FILE *fp = fopen("result", "r");
+    for (int i = 0; i < (int)pop.size(); i++)
+    {
+        double fitness = 0.0;
+        fscanf(fp, "%lf", &fitness);
+        Chromosome *chr = pop.at(i);
+        chr->setFitness(fitness);
 
-		}
-	}
-	fclose(fp);
-	*bestIdx = bestFitnessIndex;
-	*worstIdx = worstFitnessIndex;
-	return bestFitness;
+        if (i == 0)
+        {
+            bestFitness = fitness;
+            worstFitness = fitness;
+        }
+        if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel || constraintType._function == Constraint::Minimum_sum)
+        {
+            if (fitness < bestFitness)
+            {
+                bestFitness = fitness;
+                bestFitnessIndex = i;
+                bestChromosome = chr;
+            }
+            if (fitness > worstFitness)
+            {
+                worstFitness = fitness;
+                worstFitnessIndex = i;
+                worstChromosome = chr;
+            }
+        }
+        else
+        {
+            if (fitness > bestFitness)
+            {
+                bestFitness = fitness;
+                bestFitnessIndex = i;
+                bestChromosome = chr;
+            }
+            if (fitness < worstFitness)
+            {
+                worstFitness = fitness;
+                worstFitnessIndex = i;
+                worstChromosome = chr;
+            }
+        }
+    }
+    fclose(fp);
+    *bestIdx = bestFitnessIndex;
+    *worstIdx = worstFitnessIndex;
+    return bestFitness;
 }
 
 // Evaluate the population fitnesses
@@ -315,7 +322,7 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome, Chromosome *wo
             bestFitness = fitness;
             worstFitness = fitness;
         }
-        if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel)
+        if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel || constraintType._function == Constraint::Minimum_sum)
         {
             if (fitness < bestFitness)
             {
@@ -385,7 +392,7 @@ Chromosome *Population::CreateRandomChromosome_bin()
 }
 double Population::CalculateFitnessFunction(const Chromosome &chr)
 {
-	return constraintType.Fitness(chr);
+    return constraintType.Fitness(chr);
     //return constraintType.Fitness_with_noise(chr);
     // 이 부분을 Fitness()로 하면 noise가 섞이지 않은 적합도가 반환된다.
 }

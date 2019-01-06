@@ -54,5 +54,7 @@ Constraint typeOfProblem(const int &problem_type)
         return Constraint::NKlandscape;
     case 8:
         return Constraint::Deceptive;
+    case 9:
+        return Constraint::Minimum_sum;
     }
 };

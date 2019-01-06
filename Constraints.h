@@ -17,7 +17,7 @@ struct Constraint
     // 마찬가지로, num_k, landscape, nk_first, royal_number는
     // 바이너리 인코딩 문제를 위한 부분으로
     // 실수 인코딩 문제라면 0, 0, NULL, true인 상태를 유지한다.
-    
+
     enum Function
     {
         Rosenbrock,
@@ -27,7 +27,8 @@ struct Constraint
         Onemax,
         Royalroad,
         NKlandscape,
-        Deceptive
+        Deceptive,
+        Minimum_sum
     };
 
     Function _function;
@@ -50,6 +51,10 @@ struct Constraint
             min = -5;
             break;
         case Rastrigin:
+            max = 5;
+            min = -5;
+            break;
+        case Minimum_sum:
             max = 5;
             min = -5;
             break;
@@ -108,6 +113,9 @@ struct Constraint
             return nk(chr);
         case Deceptive:
             return deceptive(chr);
+
+        case Minimum_sum:
+            return minimum_sum(chr);
         }
     }
     void setParms(const int &num_k, const int &royal_number)
@@ -164,6 +172,13 @@ struct Constraint
             fitness += (pow(diff, 2) - 10 * cos(2 * M_PI * diff) + 10);
         }
         return fitness - 330.0;
+    }
+    double minimum_sum(const Chromosome &chr)
+    {
+        double fitness = 0.0;
+        for (int i = 0; i < chr.GetSize(); i++)
+            fitness += chr.getChromosome(i);
+        return fitness;
     }
     double onemax(const Chromosome &chr)
     {
