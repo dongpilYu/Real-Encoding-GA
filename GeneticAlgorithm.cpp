@@ -71,9 +71,9 @@ void GeneticAlgorithm::Run()
         if (bestFitness == best)
             findBest = true;
 
-        Evaluate_with_ML();
+        //Evaluate_with_ML();
 	    //LogResult(Evaluate_with_ML(),number_iterations, findBest);
-	    //LogResult(Evaluate(),number_iterations, findBest);
+	    LogResult(Evaluate(),i, findBest);
 	    //LogResult(pop);
         if (findBest)
             break;
@@ -82,7 +82,7 @@ void GeneticAlgorithm::Run()
         Mutate();
         Elitism();
     }
-    LogResult(Evaluate(), number_iterations, findBest);
+    //LogResult(Evaluate(), number_iterations, findBest);
 	//LogResult(pop);
 }
 // Create initial random population of chromosomes
@@ -98,7 +98,7 @@ void GeneticAlgorithm::Elitism()
 double GeneticAlgorithm::Evaluate_with_ML()
 {
 	double best = pop.EvaluatePopulation_with_ML(bestChromosome, worstChromosome, &best_idx, &worst_idx);
-    
+
 	if(BinValued) // maximization problem
 	{
 		if(best > bestFitness)
@@ -115,7 +115,7 @@ double GeneticAlgorithm::Evaluate_with_ML()
 double GeneticAlgorithm::Evaluate()
 {
     double best = pop.EvaluatePopulation(bestChromosome, worstChromosome, &best_idx, &worst_idx);
-    bestFitness = 99999999999;
+    //bestFitness = 99999999999;
     if (BinValued) // maximization problem
     {
         if (best > bestFitness)
@@ -256,7 +256,7 @@ void GeneticAlgorithm::LogResult(const double &result,
     }
     else
     {
-        if (iter % epoch == 0 || iter < epoch)
+        if (iter % epoch == 0) // || iter < epoch
         {
             std::stringstream ss;
             ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
