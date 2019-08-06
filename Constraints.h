@@ -2,6 +2,8 @@
 #define _USE_MATH_DEFINES
 #include "Chromosome.h"
 #include <cmath>
+#include <fstream>
+#include <iostream>
 #include <random>
 
 struct Constraint
@@ -206,9 +208,11 @@ struct Constraint
     }
     double nk(const Chromosome &chr)
     {
+        // num_k = 12;
+
         if (true == nk_first)
         {
-            int powerOfK = pow(num_k, 2);
+            int powerOfK = pow(2, num_k);
             landscape = new double *[chr.GetSize()];
             for (int i = 0; i < chr.GetSize(); i++)
                 landscape[i] = new double[powerOfK * 2];
@@ -216,10 +220,22 @@ struct Constraint
             for (int i = 0; i < chr.GetSize(); i++)
             {
                 for (int j = 0; j < powerOfK * 2; j++)
-                    landscape[i][j] = ((double)rand() / RAND_MAX);
+                    landscape[i][j] = (rand() / (double)RAND_MAX);
             }
             nk_first = false;
+            /*
+            std::ofstream outFile("landscape50_12.txt");
+            int k = 12;
+            for (int i = 0; i < chr.GetSize(); i++)
+            {
+                for (int j = 0; j < pow(2, k + 1); j++)
+                    outFile << landscape[i][j] << ",";
+                outFile << std::endl;
+            }
+            outFile.close();
+            */
         }
+
         else
         {
             double fitness = 0.0;
@@ -236,11 +252,20 @@ struct Constraint
                         num = (i + j) % chr.GetSize();
                     else
                         num = i + j;
-                    binary += (chr.getChromosome(num) * pow(k, 2));
+                    binary += (chr.getChromosome(num) * pow(2, k));
                     k--;
                 }
                 fitness += landscape[i][binary];
             }
+            /*
+            std::ofstream outFile("nk20_2.csv", std::fstream::app);
+            for (int i = 0; i < chr.GetSize(); i++)
+            {
+                outFile << chr.getChromosome(i) << ",";
+            }
+            outFile << fitness << std::endl;
+            outFile.close();
+            */
             return fitness;
         }
     }
