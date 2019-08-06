@@ -1,7 +1,7 @@
 make
-javac -cp $CLASSPATH fitness.java
+#javac -cp $CLASSPATH fitness.java
 
-for i in 20 25 50 100 
+for i in 20
 do
     for j in {1..50}
     do

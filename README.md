@@ -67,11 +67,6 @@ make
     ```4. If you use Royal road, [royal number] must be divisor of [chromosome size]```<br>
     ```5. If you set [Binary valued or not] to 0, then [problem type] must be smaller than 5 (1,2,3,4)```<br>
     ```6. If you set [Binary valued or not] to 1, then [problem type] must be larger than 4 (5,6,7,8)```<br>
-<br>
-<br>
-<br>
-<br>
-<br>
 * Example
 ```shell
 ./GAfunction.exe 0 20 100 10000 1 50 2 -1 -1
