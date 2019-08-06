@@ -262,7 +262,7 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
             bestFitness = fitness;
             worstFitness = fitness;
         }
-        if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel)
+        if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel || constraintType._function == Constraint::Minimum_sum)
         {
             if (fitness < bestFitness)
             {
