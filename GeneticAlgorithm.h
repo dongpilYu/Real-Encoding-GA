@@ -8,15 +8,15 @@
 
 class GeneticAlgorithm
 {
-  public:
+public:
     GeneticAlgorithm();
     ~GeneticAlgorithm();
 
-    void Initialize(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const std::string &path, Constraint &constraint);
+    void Initialize(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const std::string &path, Constraint &constraint, const int &transformOrNot);
     void SetConstraints(Constraint &constraint, const int &chromosome_size, const int &pr, const int &royal_number, const int &num_k);
     void Run();
 
-  private:
+private:
     void CreatePopulation(const int &pr);
     double Evaluate();
     double Evaluate_with_ML();
@@ -24,13 +24,13 @@ class GeneticAlgorithm
     void Mutate();
     void Select();
     void Elitism();
-    void SetParameters(const int &binaryOrNot, const int &problem_type, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch);
-    void SetParameters(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch);
+    void SetParameters(const int &binaryOrNot, const int &problem_type, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const int &transformOrNot);
+    void SetParameters(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const int &transformOrNot);
     void SetRandomSeed();
     void LogResult(const double &result, const int &iter, bool best);
     void LogResult(const Population &pop);
 
-  private:
+private:
     int crossover_rate;
     int extension_rate;
     int mutation_rate;
@@ -53,4 +53,6 @@ class GeneticAlgorithm
     int worst_idx;
     Population pop;
     Log log;
+
+    int transformOrNot;
 };
