@@ -39,6 +39,10 @@ void Population::SetConstraints(Constraint &constraint)
 {
     constraintType = constraint;
 }
+void Population::setTransform(const int &transformOrNot)
+{
+    this->transformOrNot = transformOrNot;
+}
 void Population::setChromosomeSize(const int &size)
 {
     chromosome_size = size;
@@ -175,7 +179,8 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
     int worstFitnessIndex = 0;
     char toParser[110000];
     char everySol[100000];
-    char type[100];
+    char type[30];
+
     memset(toParser, 0, sizeof(toParser));
     memset(everySol, 0, sizeof(everySol));
     memset(type, 0, sizeof(type));
@@ -186,37 +191,46 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
         strcpy(type, "onemax");
         bestFitness = minus_infinity;
         worstFitness = infinity;
+
         break;
     case Constraint::Royalroad:
         strcpy(type, "royal");
         bestFitness = minus_infinity;
         worstFitness = infinity;
+
         break;
     case Constraint::NKlandscape:
         strcpy(type, "nk");
         bestFitness = minus_infinity;
         worstFitness = infinity;
+
         break;
     case Constraint::Deceptive:
         strcpy(type, "deceptive");
         bestFitness = minus_infinity;
         worstFitness = infinity;
+
         break;
 
     case Constraint::Sphere:
         strcpy(type, "sphere");
+
         break;
     case Constraint::Schwefel:
         strcpy(type, "schwefel");
+
         break;
     case Constraint::Rosenbrock:
         strcpy(type, "rosenbrock");
+
         break;
     case Constraint::Rastrigin:
         strcpy(type, "rastrigin");
+
         break;
     case Constraint::Minimum_sum:
         strcpy(type, "minimum");
+
         break;
     }
 
@@ -224,11 +238,18 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
     {
         Chromosome *chr = pop.at(i);
 
+        /*
+          코드의 일관성을 높이기 위해
+          Walsh transform + surrogate model을 통한 적합도 계산
+          모두 fitness.java와 fitness.py에서 수행
+        */
+
         for (int j = 0; j < chromosome_size; j++)
         {
             char str[20];
             memset(str, 0, sizeof(str));
             sprintf(str, "%.3lf", chr->getChromosome(j));
+
             if (j != chromosome_size - 1)
                 strcat(str, ",");
             strcat(everySol, str);
@@ -244,9 +265,9 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
     // chromosome_size : 4
     // type : rastrigin
     if (TensorFlow)
-        sprintf(toParser, "python3 fitness.py --solution [%s] --genes %d --type %s", everySol, chromosome_size, type);
+        sprintf(toParser, "python3 fitness.py --solution [%s] --genes %d --type %s --transformOrNot %d", everySol, chromosome_size, type, transformOrNot);
     else
-        sprintf(toParser, "java fitness %s %s %d", everySol, type, chromosome_size);
+        sprintf(toParser, "java fitness %s %s %d %d", everySol, type, chromosome_size, transformOrNot);
     system(toParser);
 
     FILE *fp = fopen("result", "r");

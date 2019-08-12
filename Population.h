@@ -2,9 +2,9 @@
 
 #include "Chromosome.h"
 #include "Constraints.h"
-#include <vector>
-#include <cstring>
 #include <cstdio>
+#include <cstring>
+#include <vector>
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -12,7 +12,7 @@ const double infinity = 9999999999999;
 const double minus_infinity = -9999999999999;
 class Population
 {
-  public:
+public:
     Population(void);
     ~Population(void);
     void SetConstraints(Constraint &constraint);
@@ -29,19 +29,21 @@ class Population
     const Constraint &GetConstraints() const;
     double GetChromosomeFitness(const int &index) const;
     std::vector<Chromosome *> GetPopulation() const;
+    void setTransform(const int &transformOrNot);
     enum parent
     {
         mama = 0,
         dady
     };
 
-  private:
+private:
     Chromosome *CreateRandomChromosome_bin();
     Chromosome *CreateRandomChromosome_real();
     double CalculateFitnessFunction(const Chromosome &chr);
 
-  private:
+private:
     std::vector<Chromosome *> pop;
     int chromosome_size;
+    int transformOrNot;
     Constraint constraintType;
 };
