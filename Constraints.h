@@ -41,24 +41,24 @@ struct Constraint
         switch (_function)
         {
         case Rosenbrock:
-            max = 5;
-            min = -5;
+            max = 10;
+            min = -10;
             break;
         case Sphere:
-            max = 5;
-            min = -5;
+            max = 10;
+            min = -10;
             break;
         case Schwefel:
-            max = 5;
-            min = -5;
+            max = 10;
+            min = -10;
             break;
         case Rastrigin:
-            max = 5;
-            min = -5;
+            max = 10;
+            min = -10;
             break;
         case Minimum_sum:
-            max = 5;
-            min = -5;
+            max = 10;
+            min = -10;
             break;
         default:
             break;
