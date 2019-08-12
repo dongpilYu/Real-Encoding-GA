@@ -25,11 +25,12 @@ int main(int argc, char **argv)
     const int royal_number = atoi(argv[8]);
     const int num_k = atoi(argv[9]);
     const std::string path = (argv[10]);
+    const int transformOrNot = atoi(argv[11]); // not transform - 0, transform - 1
 
     GeneticAlgorithm ga;
     Constraint constraint = typeOfProblem(problem_type);
 
-    ga.Initialize(binaryOrNot, problem_type, royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch, path, constraint);
+    ga.Initialize(binaryOrNot, problem_type, royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch, path, constraint, transformOrNot);
     ga.Run();
 
     return 0;
