@@ -15,7 +15,7 @@ GeneticAlgorithm::~GeneticAlgorithm()
     delete bestChromosome;
     delete worstChromosome;
 }
-void GeneticAlgorithm::Initialize(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const std::string &path, Constraint &constraint)
+void GeneticAlgorithm::Initialize(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const std::string &path, Constraint &constraint, const int &transformOrNot)
 {
     if (binaryOrNot)
         bestFitness = -9999999999999;
@@ -23,7 +23,7 @@ void GeneticAlgorithm::Initialize(const int &binaryOrNot, const int &problem_typ
         bestFitness = 9999999999999;
 
     log.Open(path.c_str());
-    SetParameters(binaryOrNot, problem_type, royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
+    SetParameters(binaryOrNot, problem_type, royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch, transformOrNot);
     SetConstraints(constraint, chromosome_size, problem_type, royal_number, num_k);
     CreatePopulation(binaryOrNot);
 }
@@ -72,9 +72,9 @@ void GeneticAlgorithm::Run()
             findBest = true;
 
         //Evaluate_with_ML();
-	    //LogResult(Evaluate_with_ML(),number_iterations, findBest);
-	    LogResult(Evaluate(),i, findBest);
-	    //LogResult(pop);
+        //LogResult(Evaluate_with_ML(),number_iterations, findBest);
+        LogResult(Evaluate(), i, findBest);
+        //LogResult(pop);
         if (findBest)
             break;
         Select();
@@ -83,7 +83,7 @@ void GeneticAlgorithm::Run()
         Elitism();
     }
     //LogResult(Evaluate(), number_iterations, findBest);
-	//LogResult(pop);
+    //LogResult(pop);
 }
 // Create initial random population of chromosomes
 void GeneticAlgorithm::CreatePopulation(const int &binaryOrNot)
@@ -97,19 +97,19 @@ void GeneticAlgorithm::Elitism()
 
 double GeneticAlgorithm::Evaluate_with_ML()
 {
-	double best = pop.EvaluatePopulation_with_ML(bestChromosome, worstChromosome, &best_idx, &worst_idx);
+    double best = pop.EvaluatePopulation_with_ML(bestChromosome, worstChromosome, &best_idx, &worst_idx);
 
-	if(BinValued) // maximization problem
-	{
-		if(best > bestFitness)
-			bestFitness = best;
-	}
-	else // minimization problem
-	{
-		if(best < bestFitness)
-			bestFitness = best;
-	}
-	return bestFitness;
+    if (BinValued) // maximization problem
+    {
+        if (best > bestFitness)
+            bestFitness = best;
+    }
+    else // minimization problem
+    {
+        if (best < bestFitness)
+            bestFitness = best;
+    }
+    return bestFitness;
 }
 
 double GeneticAlgorithm::Evaluate()
@@ -214,7 +214,7 @@ void GeneticAlgorithm::Select()
         i++;
     }
 }
-void GeneticAlgorithm::SetParameters(const int &binaryOrNot, const int &problem_type, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch)
+void GeneticAlgorithm::SetParameters(const int &binaryOrNot, const int &problem_type, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const int &transformOrNot)
 {
     this->crossover_rate = crossover_rate;
     this->extension_rate = 50;
@@ -227,15 +227,16 @@ void GeneticAlgorithm::SetParameters(const int &binaryOrNot, const int &problem_
     this->chromosome_size = chromosome_size;
     this->problem_type = problem_type;
     this->BinValued = binaryOrNot;
-
+    this->transformOrNot = transformOrNot;
     pop.setChromosomeSize(chromosome_size);
+    pop.setTransform(transformOrNot);
     (*bestChromosome).setChromosomeSize(chromosome_size);
 }
-void GeneticAlgorithm::SetParameters(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch)
+void GeneticAlgorithm::SetParameters(const int &binaryOrNot, const int &problem_type, const int &royal_number, const int &num_k, const int &crossover_rate, const int &mutation_rate, const int &population_size, const int &number_iterations, const int &chromosome_size, const int &tournament_size, const int &precision, const int &epoch, const int &transformOrNot)
 {
     this->num_k = num_k;
     this->royal_number = royal_number;
-    SetParameters(binaryOrNot, problem_type, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch);
+    SetParameters(binaryOrNot, problem_type, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch, transformOrNot);
 }
 void GeneticAlgorithm::LogResult(const Population &pop)
 {
@@ -252,7 +253,7 @@ void GeneticAlgorithm::LogResult(const double &result,
         std::stringstream ss;
         ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
         log.Write((char *)ss.str().c_str());
-	//std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+        //std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
     }
     else
     {
