@@ -122,7 +122,6 @@ double* GeneticAlgorithm::Evaluate()
 {
     double ave = 0.0;
     double best = pop.EvaluatePopulation(bestChromosome, worstChromosome, &best_idx, &worst_idx, &ave);
-    bestFitness = -99999999999;
     // 이 문장이 없으면 기존의 ML로 계산했을 때의 최대값이 나올 수 있다.
     // binary problem의 경우, maximization problem이므로 bestFitness가 음수가 되야 한다. 
     
