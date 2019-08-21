@@ -169,10 +169,9 @@ void Population::BitwiseMutation(const int &index, const int &mutation_rate)
     chr->setFitness(CalcChromosomeFitness(index));
 }
 
-double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromosome *worstChromosome, int *bestIdx, int *worstIdx)
+double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromosome *worstChromosome, int *bestIdx, int *worstIdx, double* aveFitness)
 {
     double totalFitness = 0.0;
-    double aveFitness = 0.0;
     double bestFitness = infinity;
     double worstFitness = minus_infinity;
     int bestFitnessIndex = 0;
@@ -197,43 +196,34 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
         strcpy(type, "royal");
         bestFitness = minus_infinity;
         worstFitness = infinity;
-
         break;
     case Constraint::NKlandscape:
         strcpy(type, "nk");
         bestFitness = minus_infinity;
         worstFitness = infinity;
-
         break;
     case Constraint::Deceptive:
         strcpy(type, "deceptive");
         bestFitness = minus_infinity;
         worstFitness = infinity;
-
         break;
 
     case Constraint::Sphere:
         strcpy(type, "sphere");
-
         break;
     case Constraint::Schwefel:
         strcpy(type, "schwefel");
-
         break;
     case Constraint::Rosenbrock:
         strcpy(type, "rosenbrock");
-
         break;
     case Constraint::Rastrigin:
         strcpy(type, "rastrigin");
-
         break;
     case Constraint::Minimum_sum:
         strcpy(type, "minimum");
-
         break;
     }
-
     for (int i = 0; i < (int)pop.size(); i++)
     {
         Chromosome *chr = pop.at(i);
@@ -258,8 +248,15 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
         if (i != pop.size() - 1)
             strcat(everySol, "/");
     }
-
     bool TensorFlow = false; // else WEKA
+    /*
+    if (constraintType._function == Constraint::NKlandscape)
+    {
+        for (int i = 0; i < chromosome_size; i++)
+            delete constraintType.landscape[i];
+        delete constraintType.landscape;
+    }
+    */
 
     // everySol : 0.3,2.1,3.2,-0.34/0.31,-4.3,1.32,-0.32
     // chromosome_size : 4
@@ -267,7 +264,14 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
     if (TensorFlow)
         sprintf(toParser, "python3 fitness.py --solution [%s] --genes %d --type %s --transformOrNot %d", everySol, chromosome_size, type, transformOrNot);
     else
-        sprintf(toParser, "java fitness %s %s %d %d", everySol, type, chromosome_size, transformOrNot);
+    {
+        if(constraintType._function == Constraint::NKlandscape) // the value of k and machine learning algorithm
+            sprintf(toParser, "java fitness %s %s %d %d %s %s", everySol, type, chromosome_size, 1, "walsh", "svr");
+            // 현재 코드는 NK landscape만이 바이너리 인코딩 문제이다. 
+        else
+            sprintf(toParser, "java fitness %s %s %d %d %s %s", everySol, type, chromosome_size, -1, "fourier", "svr");
+    }
+    printf("%s\n", everySol);
     system(toParser);
 
     FILE *fp = fopen("result", "r");
@@ -278,6 +282,7 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
         Chromosome *chr = pop.at(i);
         chr->setFitness(fitness);
 
+        totalFitness += fitness;
         if (i == 0)
         {
             bestFitness = fitness;
@@ -315,6 +320,7 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
         }
     }
     fclose(fp);
+    *aveFitness = totalFitness / (int)pop.size();
     *bestIdx = bestFitnessIndex;
     *worstIdx = worstFitnessIndex;
 
@@ -322,11 +328,9 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
 }
 
 // Evaluate the population fitnesses
-double Population::EvaluatePopulation(Chromosome *bestChromosome, Chromosome *worstChromosome, int *bestIdx, int *worstIdx)
+double Population::EvaluatePopulation(Chromosome *bestChromosome, Chromosome *worstChromosome, int *bestIdx, int *worstIdx, double* aveFitness)
 {
     double totalFitness = 0.0;
-    double aveFitness = 0.0;
-
     double bestFitness = infinity;
     double worstFitness = minus_infinity;
     int bestFitnessIndex = 0;
@@ -348,12 +352,13 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome, Chromosome *wo
         Chromosome *chr = pop.at(i);
         chr->setFitness(fitness);
 
+        totalFitness += fitness;
         if (i == 0)
         {
             bestFitness = fitness;
             worstFitness = fitness;
         }
-        if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel || constraintType._function == Constraint::Minimum_sum)
+        if (constraintType._function == Constraint::Rastrigin || constraintType._function == Constraint::Sphere || constraintType._function == Constraint::Rosenbrock || constraintType._function == Constraint::Schwefel || constraintType._function == Constraint::Minimum_sum) // minimization problem
         {
             if (fitness < bestFitness)
             {
@@ -369,7 +374,7 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome, Chromosome *wo
             }
         }
 
-        else
+        else // maximization problem 
         {
             if (fitness > bestFitness)
             {
@@ -385,6 +390,7 @@ double Population::EvaluatePopulation(Chromosome *bestChromosome, Chromosome *wo
             }
         }
     }
+    *aveFitness = totalFitness / (int)pop.size();
     *bestIdx = bestFitnessIndex;
     *worstIdx = worstFitnessIndex;
     return bestFitness;
