@@ -75,4 +75,6 @@ class GeneticAlgorithm {
 
     bool evaluateWithML;
     int transformOrNot;
+    bool evaluateWithML;
 };
+
