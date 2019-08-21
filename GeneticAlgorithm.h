@@ -73,7 +73,6 @@ class GeneticAlgorithm {
     Population pop;
     Log log;
 
-    bool evaluateWithML;
     int transformOrNot;
     bool evaluateWithML;
 };
