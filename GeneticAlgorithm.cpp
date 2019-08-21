@@ -8,6 +8,7 @@ GeneticAlgorithm::GeneticAlgorithm()
 {
     bestChromosome = new Chromosome();
     worstChromosome = new Chromosome();
+    evaluateWithML = false;
     SetRandomSeed();
 }
 GeneticAlgorithm::~GeneticAlgorithm()
@@ -100,7 +101,8 @@ double* GeneticAlgorithm::Evaluate_with_ML()
 {
     double ave = 0.0;
     double best = pop.EvaluatePopulation_with_ML(bestChromosome, worstChromosome, &best_idx, &worst_idx, &ave);
-    
+  
+    evaluateWithML = true;
     if (BinValued) // maximization problem
     {
         if (best > bestFitness)
@@ -122,7 +124,13 @@ double* GeneticAlgorithm::Evaluate()
 {
     double ave = 0.0;
     double best = pop.EvaluatePopulation(bestChromosome, worstChromosome, &best_idx, &worst_idx, &ave);
-    bestFitness = -99999999999;
+    if(evaluateWithML == true)
+    {
+        if(problem_type >= 5 && problem_type <= 8) // binary encoding problems
+            bestFitness = -99999999999;
+        else // real encoding problems
+            bestFitness = 99999999999;
+    }
     // 이 문장이 없으면 기존의 ML로 계산했을 때의 최대값이 나올 수 있다.
     // binary problem의 경우, maximization problem이므로 bestFitness가 음수가 되야 한다. 
     
@@ -242,6 +250,7 @@ void GeneticAlgorithm::SetParameters(const int &binaryOrNot, const int &problem_
     this->problem_type = problem_type;
     this->BinValued = binaryOrNot;
     this->transformOrNot = transformOrNot;
+    
     pop.setChromosomeSize(chromosome_size);
     pop.setTransform(transformOrNot);
     (*bestChromosome).setChromosomeSize(chromosome_size);

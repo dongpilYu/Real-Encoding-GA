@@ -55,4 +55,6 @@ private:
     Log log;
 
     int transformOrNot;
+    bool evaluateWithML;
 };
+
