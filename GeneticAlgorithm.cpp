@@ -71,9 +71,10 @@ void GeneticAlgorithm::Run()
         if (bestFitness == best)
             findBest = true;
 
-        //Evaluate_with_ML();
-        //LogResult(Evaluate_with_ML(),number_iterations, findBest);
-        LogResult(Evaluate(), i, findBest);
+        Evaluate_with_ML();
+        //LogResult(Evaluate_with_ML(), i, findBest);
+        //Evaluate();
+        //LogResult(Evaluate(), i, findBest);
         //LogResult(pop);
         if (findBest)
             break;
@@ -82,7 +83,7 @@ void GeneticAlgorithm::Run()
         Mutate();
         Elitism();
     }
-    //LogResult(Evaluate(), number_iterations, findBest);
+    LogResult(Evaluate(), number_iterations, findBest);
     //LogResult(pop);
 }
 // Create initial random population of chromosomes
@@ -95,10 +96,11 @@ void GeneticAlgorithm::Elitism()
     pop.CopyChromosome(best_idx, worst_idx);
 }
 
-double GeneticAlgorithm::Evaluate_with_ML()
+double* GeneticAlgorithm::Evaluate_with_ML()
 {
-    double best = pop.EvaluatePopulation_with_ML(bestChromosome, worstChromosome, &best_idx, &worst_idx);
-
+    double ave = 0.0;
+    double best = pop.EvaluatePopulation_with_ML(bestChromosome, worstChromosome, &best_idx, &worst_idx, &ave);
+    
     if (BinValued) // maximization problem
     {
         if (best > bestFitness)
@@ -109,13 +111,21 @@ double GeneticAlgorithm::Evaluate_with_ML()
         if (best < bestFitness)
             bestFitness = best;
     }
-    return bestFitness;
+    double* arr = new double[2];
+    arr[1] = ave;
+    arr[0] = bestFitness;
+    return arr; 
+    //return bestFitness;
 }
 
-double GeneticAlgorithm::Evaluate()
+double* GeneticAlgorithm::Evaluate()
 {
-    double best = pop.EvaluatePopulation(bestChromosome, worstChromosome, &best_idx, &worst_idx);
-    //bestFitness = 99999999999;
+    double ave = 0.0;
+    double best = pop.EvaluatePopulation(bestChromosome, worstChromosome, &best_idx, &worst_idx, &ave);
+    bestFitness = -99999999999;
+    // 이 문장이 없으면 기존의 ML로 계산했을 때의 최대값이 나올 수 있다.
+    // binary problem의 경우, maximization problem이므로 bestFitness가 음수가 되야 한다. 
+    
     if (BinValued) // maximization problem
     {
         if (best > bestFitness)
@@ -126,7 +136,11 @@ double GeneticAlgorithm::Evaluate()
         if (best < bestFitness)
             bestFitness = best;
     }
-    return bestFitness;
+    double* arr = new double[2];
+    arr[1] = ave;
+    arr[0] = bestFitness;
+    return arr;
+    //return bestFitness;
 }
 
 // Apply crossover to selected chromosome pairs
@@ -245,13 +259,13 @@ void GeneticAlgorithm::LogResult(const Population &pop)
     for (int i = 0; i < chrs.size(); i++)
         log.Write((chrs.at(i)));
 }
-void GeneticAlgorithm::LogResult(const double &result,
+void GeneticAlgorithm::LogResult(const double* result,
                                  const int &iter, bool findBest)
 {
     if (findBest)
     {
         std::stringstream ss;
-        ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+        ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result[0] << " Ave fitness : " << result[1]  << std::endl;
         log.Write((char *)ss.str().c_str());
         //std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
     }
@@ -260,7 +274,7 @@ void GeneticAlgorithm::LogResult(const double &result,
         if (iter % epoch == 0) // || iter < epoch
         {
             std::stringstream ss;
-            ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
+            ss << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result[0] << " Ave fitness : " << result[1]  << std::endl;
             log.Write((char *)ss.str().c_str());
             //std::cout << "Iteration = " << std::setw(6) << iter << " Best fitness : " << result << std::endl;
         }
