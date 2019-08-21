@@ -1,196 +1,236 @@
 import weka.core.Instances;
-import weka.core.Instance;
+import weka.core.converters.ConverterUtils;
 import weka.core.SerializationHelper;
-import weka.core.Utils;
-import weka.core.Attribute;
-import weka.core.converters.ConverterUtils.DataSource;
 import weka.classifiers.Classifier;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.transform.DftNormalization;
-import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
-/*
-    0101/1011/0000/1111 nk 4 형태의 입력
+import org.apache.commons.math3.transform.FastFourierTransformer;
+import org.apache.commons.math3.transform.DftNormalization;
+import java.util.Arrays;
+import java.util.ArrayList;
 
-    String chromo[], problem, problem_size
-*/
-public class fitness{
+// 
+// Decompiled by Procyon v0.5.36
+// 
 
-    List<String> walsh_chromos = new ArrayList<String>();
-    List<String> fourier_chromos = new ArrayList<String>();
-
-    static int binomialCoeff(int n, int k){
-        int c[][] = new int[n+1][k+1];
-
-        for(int i=0;i<=n;i++) {
-            for(int j=0;j<=min(i,k);j++) {
-                if(j==0 || j==i)
-                    c[i][j] = 1;
-                else
-                    c[i][j] = c[i-1][j-1] + c[i-1][j];
-            }
-        }
-        return c[n][k];
+public class fitness
+{
+    static ArrayList<String> walsh_chromos;
+    static ArrayList<String> fourier_chromos;
+    static int numOfGenes;
+    static int walsh_order;
+    static int k;
+    static int walsh_size;
+    
+    static int min(final int n, final int n2) {
+        return (n < n2) ? n : n2;
     }
-    static int calc_walsh(ArrayList<Integer> numbers, int k){
-
-        int pos = 0;
-        int exp = 0;
-        ArrayList<Integer> binary = new ArrayList<Integer>();
-        while(true){
-
-            binary.add(k%2);
-            k = (int)k/2;
-            pos += 1;
-            if(k==0)
-                break;
-
-        }
-
-        for(int i=pos-1;i>-1;i--)
-            exp += (numbers.get(i)*binary.get(i));
-        if(exp % 2 == 0)
-            return 1;
-        else
-            return -1;
-    }
-    public void walsh_transform(String[] chromo){
-        /*
-            기존의 walsh_transform ArrayList<Integer> numbers는 염색체 하나를 저장
-            String[] chromo는 한 세대의 모든 염색체를 가진 문자열
-
-            [0101010, 10101111, .... , 11111111]
-        */
-        ArrayList<Integer> numbers = new ArrayList<Integer>();
-
-        for(int i=0;i<chromo.length;i++){
-
-            for(int j=0;j<chromo[i].length;j++){
-                numbers[j] = chromo[i][j];
-            }
-            int num_coeff0 = 1;
-            int num_coeff1 = n;
-            int num_coeff2 = binomialCoeff(n, 2);
-            int num_coeff3 = binomialCoeff(n, 3);
-            int[] walsh_coeff = new int[num_coeff0 + num_coeff1 + num_coeff2 + num_coeff3];
-            int[] order_one = new int[num_coeff1];
-            int[] order_two = new int[num_coeff2];
-            int[] order_three = new int[num_coeff3];
-            for (int i = 0; i < n; i++)
-                order_one[i] = (int) Math.pow(2, i);
-            int idx = 0;
-            for (int i = 0; i < n; i++) {
-                for (int j = i + 1; j < n; j++) {
-                    order_two[idx] = order_one[i] + order_one[j];
-                    idx++;
+    
+    static int binomialCoeff(final int n, final int n2) {
+        final int[][] array = new int[n + 1][n2 + 1];
+        for (int i = 0; i <= n; ++i) {
+            for (int j = 0; j <= min(i, n2); ++j) {
+                if (j == 0 || j == i) {
+                    array[i][j] = 1;
+                }
+                else {
+                    array[i][j] = array[i - 1][j - 1] + array[i - 1][j];
                 }
             }
-            idx=0;
-            for(int i=0;i<n;i++) {
-                for(int j=i+1;j<n;j++){
-                    for(int k=j+1;k<n;k++){
-                        order_three[idx] = order_one[i]+order_one[j]+order_one[k];
-                        idx++;
+        }
+        return array[n][n2];
+    }
+    
+    static int calc_walsh(final ArrayList<Integer> list, int i) {
+        int n = 0;
+        int n2 = 0;
+        final ArrayList<Integer> list2 = new ArrayList<Integer>();
+        do {
+            list2.add(i % 2);
+            i /= 2;
+            ++n;
+        } while (i != 0);
+        for (int j = n - 1; j > -1; --j) {
+            n2 += list.get(j) * list2.get(j);
+        }
+        if (n2 % 2 == 0) {
+            return 1;
+        }
+        return -1;
+    }
+    
+    public static void walsh_transform(final String[] array) {
+        final ArrayList<Integer> list = new ArrayList<Integer>();
+        for (int i = 0; i < array.length; ++i) {
+            list.clear();
+            for (int j = 0; j < array[i].length(); ++j) {
+                list.add(array[i].charAt(j) - '0');
+            }
+            final int n = 1;
+            final int numOfGenes = fitness.numOfGenes;
+            int binomialCoeff = binomialCoeff(fitness.numOfGenes, 2);
+            int binomialCoeff2 = binomialCoeff(fitness.numOfGenes, 3);
+            final int[] array2 = new int[numOfGenes];
+            final int[] array3 = new int[binomialCoeff];
+            final int[] array4 = new int[binomialCoeff2];
+
+             if (fitness.walsh_order <= 2) {
+                binomialCoeff2 = 0;
+            }
+            if (fitness.walsh_order <= 1) {
+                binomialCoeff = 0;
+            }
+
+            final int[] a = new int[n + numOfGenes + binomialCoeff + binomialCoeff2];
+
+            for (int k = 0; k < fitness.numOfGenes; ++k) {
+                array2[k] = (int)Math.pow(2.0, k);
+            }
+            int n2 = 0;
+            for (int l = 0; l < fitness.numOfGenes; ++l) {
+                for (int n3 = l + 1; n3 < fitness.numOfGenes; ++n3) {
+                    array3[n2] = array2[l] + array2[n3];
+                    ++n2;
+                }
+            }
+            int n4 = 0;
+            for (int n5 = 0; n5 < fitness.numOfGenes; ++n5) {
+                for (int n6 = n5 + 1; n6 < fitness.numOfGenes; ++n6) {
+                    for (int n7 = n6 + 1; n7 < fitness.numOfGenes; ++n7) {
+                        array4[n4] = array2[n5] + array2[n6] + array2[n7];
+                        ++n4;
                     }
                 }
             }
-
-            if(walsh_order<=2)
-                num_coeff3=0;
-            if(walsh_order<=1)
-                num_coeff2=0;
-
-            idx=0;
-            walsh_coeff[idx++] = calc_walsh(numbers,0);
-            for(int i=0;i<num_coeff1;i++)
-                walsh_coeff[idx++] = calc_walsh(numbers, order_one[i]);
-            for(int i=0;i<num_coeff2;i++)
-                walsh_coeff[idx++] = calc_walsh(numbers, order_two[i]);
-            for(int i=0;i<num_coeff3;i++)
-                walsh_coeff[idx++] = calc_walsh(numbers, order_three[i]);
-
-            String walshStr = Arrays.toString(walsh_coeff)
-            walsh_chromos.add(walshStr);
-            // walsh_coeff -> String화해서 전달 리스트에 삽입
-        }
-    }
-    public void fourier_transform(String[] chromo){
-
-        // [-1.32,4-23,-2.31 , 3.12,4.12,-3.41 , ...]
-        ArrayList<Double> numbers = new ArrayList<Double>();
-        for(int i=0;i<chromo.length;i++){ // number of population
-
-            String[] genes = chromo[i].split(","); // number of genes = problem size
-            for(int j=0;j<genes.length;j++)
-                numbers[j] = Double.parseDouble(genes[j]);
-
-            FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
-            Complex[] signature = transformer.transform(numbers, TransformType.FORWARD);
-
-            String geneStr = "";
-
-            for(int j=0;j<signature.length;j++)
-            {
-                String gene = Double.toString(signature[j].getReal());
-                geneStr = genes.concat(gene);
+            int n8 = 0;
+            a[n8++] = calc_walsh(list, 0);
+            for (int n9 = 0; n9 < numOfGenes; ++n9) {
+                a[n8++] = calc_walsh(list, array2[n9]);
             }
-            fourier_chromos.add(geneStr)
+            for (int n10 = 0; n10 < binomialCoeff; ++n10) {
+                a[n8++] = calc_walsh(list, array3[n10]);
+            }
+            for (int n11 = 0; n11 < binomialCoeff2; ++n11) {
+                a[n8++] = calc_walsh(list, array4[n11]);
+            }
+            fitness.walsh_chromos.add(Arrays.toString(a));
         }
     }
-	public static void main(String args[]){
-		try{
-			String everyChromo = args[0];
-			String chromo[] = everyChromo.split("/");
-			String problem = args[1];
-			String genes_str = args[2];
-			String transform = args[3];
-            String model = args[4];
-            // 0101/0111, sphere, 4, fourier[walsh, normal], svr
-			int numOfGenes = Integer.parseInt(genes_str);
+    
+    public static void fourier_transform(final String[] array) {
+        final double[] array2 = new double[fitness.numOfGenes];
+        for (int i = 0; i < array.length; ++i) {
+            final String[] split = array[i].split(",");
+            for (int j = 0; j < fitness.numOfGenes; ++j) {
+                array2[j] = Double.parseDouble(split[j]);
+            }
+            final Complex[] transform = new FastFourierTransformer(DftNormalization.STANDARD).transform(array2, TransformType.FORWARD);
+            String concat = "";
+            for (int k = 0; k < transform.length; ++k) {
+                concat = concat.concat(Double.toString(transform[k].getReal()));
+            }
+            fitness.fourier_chromos.add(concat);
+        }
+    }
+    
+    public static int getCoeff(final int n, final int n2) {
+        if (n2 == 0) {
+            return 1 + binomialCoeff(n, 1);
+        }
+        if (n2 == 1) {
+            return 1 + binomialCoeff(n, 1) + binomialCoeff(n, 2);
+        }
+        if (n2 == 2) {
+            return 1 + binomialCoeff(n, 1) + binomialCoeff(n, 2) + binomialCoeff(n, 3);
+        }
+        return -1;
+    }
+    
+    public static void main(final String[] array) {
+        try {
+            final String[] split = array[0].split("/");
+            final String s = array[1]; // nk
+            final String s2 = array[2]; // 10
+            final String s3 = array[3]; // 2
+            final String s4 = array[4]; // walsh
+            final String str = array[5]; // svr
 
-			String model_path = "C:\\Users\\dong\\Desktop\\hindawi\\data\\" + problem + "_" + transform + "\\" + model + "_" + transform + "_model\\" + transform + "_" + problem + genes_str +".model";
-            FileWriter arff = new FileWriter("data.arff");
-
-			arff.write("@relation " + problem + genes_str + "\n");
-			arff.write("\n");
-
-			for(int i=0;i<numOfGenes;i++)
-			{
-				arff.write("@attribute " + "f" + String.valueOf(i) + " numeric");
-				arff.write("\n");
-			}
-			arff.write("@attribute fit numeric\n\n");
-			arff.write("@data\n");
-
-            fourier_transform(chromo);
-            walsh_transform(chromo);
-			for(int i=0;i<chromo.length;i++)
-			{
-				arff.write(chromo[i]);
-				arff.write(",");
-				arff.write("0\n");
-			}
-			arff.close();
-
-			Classifier cls = (Classifier)weka.core.SerializationHelper.read(model_path);
-			DataSource source = new DataSource("data.arff");
-			Instances test = source.getDataSet();
-
-			FileWriter fw = new FileWriter("result");
-			for(int i=0;i<test.numInstances();i++)
-			{
-				double pred = cls.classifyInstance(test.instance(i));
-                fw.write(new Double(pred).toString() + " ");
-			}
-			fw.close();
-
-			}catch(Exception e){
-				System.out.println(e);
-			}
-	}
+            fitness.numOfGenes = Integer.parseInt(s2);
+            fitness.k = Integer.parseInt(s3);
+            fitness.walsh_order = fitness.k + 1;
+            fitness.walsh_size = getCoeff(fitness.numOfGenes, fitness.k);
+            String s5;
+            if (fitness.k == -1) {
+                s5 = "/home/dong/190806/data/" + s + "_" + s4 + "/" + str + "_" + s4 + "_model/" + s4 + "_" + s + s2 + ".model";
+            }
+            else {
+                s5 = "/home/dong/190806/data/" + s + "_" + s4 + "/" + str + "_" + s4 + "_model/" + str + s2 + "_" + fitness.k + ".model";
+            }
+            final FileWriter fileWriter = new FileWriter("data.arff");
+            fileWriter.write("@relation " + s + "_" + s4 + s2 + "_" + s3 + "\n");
+            fileWriter.write("\n");
+            if (s4.equals("walsh")) {
+                for (int i = 0; i < fitness.walsh_size; ++i) {
+                    fileWriter.write("@attribute f" + String.valueOf(i) + " numeric");
+                    fileWriter.write("\n");
+                }
+            }
+            else {
+                for (int j = 0; j < fitness.numOfGenes; ++j) {
+                    fileWriter.write("@attribute f" + String.valueOf(j) + " numeric");
+                    fileWriter.write("\n");
+                }
+            }
+            fileWriter.write("@attribute fit numeric\n\n");
+            fileWriter.write("@data\n");
+            if (s4.equals("fourier")) {
+                //System.out.println("fourier");
+                fourier_transform(split);
+                for (int k = 0; k < split.length; ++k) {
+                    fileWriter.write(fitness.fourier_chromos.get(k));
+                    fileWriter.write(",");
+                    fileWriter.write(" 0\n");
+                }
+            }
+            else if (s4.equals("walsh")) {
+                walsh_transform(split);
+                //System.out.println("walsh");
+                for (int l = 0; l < split.length; ++l) {
+                    final String replace = fitness.walsh_chromos.get(l).replace("[", "").replace("]", "");
+                    fileWriter.write(replace);
+                    fileWriter.write(",");
+                    fileWriter.write(" 0\n");
+                }
+            }
+            else {
+                //System.out.println("normal");
+                for (int n = 0; n < split.length; ++n) {
+                    fileWriter.write(split[n]);
+                    fileWriter.write(",");
+                    fileWriter.write(" 0\n");
+                }
+            }
+            fileWriter.close();
+            final Classifier x = (Classifier)SerializationHelper.read(s5);
+            final Instances dataSet = new ConverterUtils.DataSource("data.arff").getDataSet();
+            final FileWriter fileWriter2 = new FileWriter("result");
+            for (int n2 = 0; n2 < dataSet.numInstances(); ++n2) {
+                fileWriter2.write(new Double(x.classifyInstance(dataSet.instance(n2))).toString() + " ");
+            }
+            fileWriter2.close();
+        }
+        catch (Exception x2) {
+            System.out.println(x2);
+        }
+    }
+    
+    static {
+        fitness.walsh_chromos = new ArrayList<String>();
+        fitness.fourier_chromos = new ArrayList<String>();
+        fitness.numOfGenes = 0;
+        fitness.walsh_order = 0;
+        fitness.k = 0;
+        fitness.walsh_size = 0;
+    }
 }
