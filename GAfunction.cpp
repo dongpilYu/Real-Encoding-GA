@@ -29,10 +29,8 @@ int main(int argc, char **argv)
 
     GeneticAlgorithm ga;
     Constraint constraint = typeOfProblem(problem_type);
-
     ga.Initialize(binaryOrNot, problem_type, royal_number, num_k, crossover_rate, mutation_rate, population_size, number_iterations, chromosome_size, tournament_size, precision, epoch, path, constraint, transformOrNot);
     ga.Run();
-
     return 0;
 }
 Constraint typeOfProblem(const int &problem_type)
