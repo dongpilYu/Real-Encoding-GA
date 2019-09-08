@@ -72,6 +72,7 @@ void GeneticAlgorithm::Run()
         if (bestFitness == best)
             findBest = true;
 
+
         Evaluate_with_ML();
         //LogResult(Evaluate_with_ML(), i, findBest);
         //Evaluate();

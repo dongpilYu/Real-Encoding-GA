@@ -269,9 +269,10 @@ double Population::EvaluatePopulation_with_ML(Chromosome *bestChromosome, Chromo
             sprintf(toParser, "java fitness %s %s %d %d %s %s", everySol, type, chromosome_size, 1, "walsh", "svr");
             // 현재 코드는 NK landscape만이 바이너리 인코딩 문제이다. 
         else
-            sprintf(toParser, "java fitness %s %s %d %d %s %s", everySol, type, chromosome_size, -1, "fourier", "svr");
+        {
+            sprintf(toParser, "java -cp $CLASSPATH:/home/dong/jar/* fitness %s %s %d %d %s %s", everySol, type, chromosome_size, -1, "fourier", "rbfn");
+        }
     }
-    printf("%s\n", everySol);
     system(toParser);
 
     FILE *fp = fopen("result", "r");
