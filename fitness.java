@@ -10,9 +10,9 @@ import org.apache.commons.math3.transform.DftNormalization;
 import java.util.Arrays;
 import java.util.ArrayList;
 
-// 
+//
 // Decompiled by Procyon v0.5.36
-// 
+//
 
 public class fitness
 {
@@ -22,11 +22,11 @@ public class fitness
     static int walsh_order;
     static int k;
     static int walsh_size;
-    
+
     static int min(final int n, final int n2) {
         return (n < n2) ? n : n2;
     }
-    
+
     static int binomialCoeff(final int n, final int n2) {
         final int[][] array = new int[n + 1][n2 + 1];
         for (int i = 0; i <= n; ++i) {
@@ -41,7 +41,7 @@ public class fitness
         }
         return array[n][n2];
     }
-    
+
     static int calc_walsh(final ArrayList<Integer> list, int i) {
         int n = 0;
         int n2 = 0;
@@ -59,7 +59,7 @@ public class fitness
         }
         return -1;
     }
-    
+
     public static void walsh_transform(final String[] array) {
         final ArrayList<Integer> list = new ArrayList<Integer>();
         for (int i = 0; i < array.length; ++i) {
@@ -117,7 +117,7 @@ public class fitness
             fitness.walsh_chromos.add(Arrays.toString(a));
         }
     }
-    
+
     public static void fourier_transform(final String[] array) {
         final double[] array2 = new double[fitness.numOfGenes];
         for (int i = 0; i < array.length; ++i) {
@@ -128,12 +128,14 @@ public class fitness
             final Complex[] transform = new FastFourierTransformer(DftNormalization.STANDARD).transform(array2, TransformType.FORWARD);
             String concat = "";
             for (int k = 0; k < transform.length; ++k) {
-                concat = concat.concat(Double.toString(transform[k].getReal()));
+
+                concat = concat.concat(Double.toString(Math.round(transform[k].getReal()*1000)/1000.0));
+                concat = concat.concat(",");
             }
             fitness.fourier_chromos.add(concat);
         }
     }
-    
+
     public static int getCoeff(final int n, final int n2) {
         if (n2 == 0) {
             return 1 + binomialCoeff(n, 1);
@@ -146,7 +148,7 @@ public class fitness
         }
         return -1;
     }
-    
+
     public static void main(final String[] array) {
         try {
             final String[] split = array[0].split("/");
@@ -162,10 +164,10 @@ public class fitness
             fitness.walsh_size = getCoeff(fitness.numOfGenes, fitness.k);
             String s5;
             if (fitness.k == -1) {
-                s5 = "/home/dong/190806/data/" + s + "_" + s4 + "/" + str + "_" + s4 + "_model/" + s4 + "_" + s + s2 + ".model";
+                s5 = "/home/dong/data/" + s + "_" + s4 + "/" + str + "_" + s4 + "_model/" + s4 + "_" + s + s2 + ".model";
             }
             else {
-                s5 = "/home/dong/190806/data/" + s + "_" + s4 + "/" + str + "_" + s4 + "_model/" + str + s2 + "_" + fitness.k + ".model";
+                s5 = "/home/dong/data/" + s + "_" + s4 + "/" + str + "_" + s4 + "_model/" + str + s2 + "_" + fitness.k + ".model";
             }
             final FileWriter fileWriter = new FileWriter("data.arff");
             fileWriter.write("@relation " + s + "_" + s4 + s2 + "_" + s3 + "\n");
@@ -182,15 +184,15 @@ public class fitness
                     fileWriter.write("\n");
                 }
             }
+
             fileWriter.write("@attribute fit numeric\n\n");
             fileWriter.write("@data\n");
             if (s4.equals("fourier")) {
-                //System.out.println("fourier");
                 fourier_transform(split);
                 for (int k = 0; k < split.length; ++k) {
                     fileWriter.write(fitness.fourier_chromos.get(k));
-                    fileWriter.write(",");
-                    fileWriter.write(" 0\n");
+                    //fileWriter.write(",");
+                    fileWriter.write("0\n");
                 }
             }
             else if (s4.equals("walsh")) {
@@ -200,7 +202,7 @@ public class fitness
                     final String replace = fitness.walsh_chromos.get(l).replace("[", "").replace("]", "");
                     fileWriter.write(replace);
                     fileWriter.write(",");
-                    fileWriter.write(" 0\n");
+                    fileWriter.write("0\n");
                 }
             }
             else {
@@ -208,12 +210,13 @@ public class fitness
                 for (int n = 0; n < split.length; ++n) {
                     fileWriter.write(split[n]);
                     fileWriter.write(",");
-                    fileWriter.write(" 0\n");
+                    fileWriter.write("0\n");
                 }
             }
             fileWriter.close();
             final Classifier x = (Classifier)SerializationHelper.read(s5);
             final Instances dataSet = new ConverterUtils.DataSource("data.arff").getDataSet();
+            dataSet.setClassIndex(dataSet.numAttributes()-1);
             final FileWriter fileWriter2 = new FileWriter("result");
             for (int n2 = 0; n2 < dataSet.numInstances(); ++n2) {
                 fileWriter2.write(new Double(x.classifyInstance(dataSet.instance(n2))).toString() + " ");
@@ -224,7 +227,7 @@ public class fitness
             System.out.println(x2);
         }
     }
-    
+
     static {
         fitness.walsh_chromos = new ArrayList<String>();
         fitness.fourier_chromos = new ArrayList<String>();
