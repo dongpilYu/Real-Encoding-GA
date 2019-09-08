@@ -1,31 +1,41 @@
 make
-javac -cp $CLASSPATH:/home/dong/190806/commons-math3-3.6.1/commons-math3-3.6.1.jar fitness.java
+javac -cp $CLASSPATH:/home/dong/jar/* fitness.java
 
-for i in {1..50}; do
-    ./GAfunction.exe 0 10 300 500 1 50 2 -1 -1 "10_rosenbrock_fourier" 0
-    ./GAfunction.exe 0 15 300 500 1 50 2 -1 -1 "15_rosenbrock_fourier" 0
-    ./GAfunction.exe 0 20 300 500 1 50 2 -1 -1 "20_rosenbrock_fourier" 0
+for i in {1..30}; do
 
-    ./GAfunction.exe 0 10 300 500 2 50 2 -1 -1 "10_sphere_fourier" 0
-    ./GAfunction.exe 0 15 300 500 2 50 2 -1 -1 "15_sphere_fourier" 0
-    ./GAfunction.exe 0 20 300 500 2 50 2 -1 -1 "20_sphere_fourier" 0
+    ./GAfunction.exe 0 2 300 500 2 50 2 -1 -1 "2_sphere_fourier" 0
+    ./GAfunction.exe 0 4 300 500 2 50 2 -1 -1 "4_sphere_fourier" 0
+    ./GAfunction.exe 0 8 300 500 2 50 2 -1 -1 "8_sphere_fourier" 0
 
-    ./GAfunction.exe 0 10 300 500 3 50 2 -1 -1 "10_schwefel_fourier" 0
-    ./GAfunction.exe 0 15 300 500 3 50 2 -1 -1 "15_schwefel_fourier" 0
-    ./GAfunction.exe 0 20 300 500 3 50 2 -1 -1 "20_schwefel_fourier" 0
+    ./GAfunction.exe 0 2 300 500 3 50 2 -1 -1 "2_schwefel_fourier" 0
+    ./GAfunction.exe 0 4 300 500 3 50 2 -1 -1 "4_schwefel_fourier" 0
+    ./GAfunction.exe 0 8 300 500 3 50 2 -1 -1 "8_schwefel_fourier" 0
 
-    ./GAfunction.exe 0 10 300 500 4 50 2 -1 -1 "10_rastrigin_fourier" 0
-    ./GAfunction.exe 0 15 300 500 4 50 2 -1 -1 "15_rastrigin_fourier" 0
-    ./GAfunction.exe 0 20 300 500 4 50 2 -1 -1 "20_rastrigin_fourier" 0
+    ./GAfunction.exe 0 2 300 500 4 50 2 -1 -1 "2_rastrigin_fourier" 0
+    ./GAfunction.exe 0 4 300 500 4 50 2 -1 -1 "4_rastrigin_fourier" 0
+    ./GAfunction.exe 0 8 300 500 4 50 2 -1 -1 "8_rastrigin_fourier" 0
 
-    # problem type
-    # 1 : rosenbrock
-    # 2 : sphere
-    # 3 : schwefel
-    # 4 : rastrigin
 
-    # ./GAfunction.exe 1 25 100 1000 7 50 2 -1 1 "25_1_normal" 0
-    # ./GAfunction.exe 1 50 100 1000 7 50 2 -1 1 "50_1_normal" 0
+
+#./GAfunction.exe 0 8 300 500 2 50 2 -1 -1 "8_sphere_fourier" 0
+#./GAfunction.exe 0 16 300 500 2 50 2 -1 -1 "16_sphere_fourier" 0
+#./GAfunction.exe 0 32 300 500 2 50 2 -1 -1 "24_sphere_fourier" 0
+
+#./GAfunction.exe 0 8 300 500 3 50 2 -1 -1 "8_schwefel_fourier" 0
+#./GAfunction.exe 0 16 300 500 3 50 2 -1 -1 "16_schwefel_fourier" 0
+#./GAfunction.exe 0 32 300 500 3 50 2 -1 -1 "24_schwefel_fourier" 0
+
+#./GAfunction.exe 0 8 300 500 4 50 2 -1 -1 "8_rastrigin_fourier" 0
+#./GAfunction.exe 0 16 300 500 4 50 2 -1 -1 "16_rastrigin_fourier" 0
+#./GAfunction.exe 0 32 300 500 4 50 2 -1 -1 "32_rastrigin_fourier" 0
+# problem type
+# 1 : rosenbrock
+# 2 : sphere
+# 3 : schwefel
+# 4 : rastrigin
+
+# ./GAfunction.exe 1 25 100 1000 7 50 2 -1 1 "25_1_normal" 0
+# ./GAfunction.exe 1 50 100 1000 7 50 2 -1 1 "50_1_normal" 0
 
 done
 # binaryOrNot, chromosome_size, population_size, number_iterations, problem_type, crossover_rate, mutation_rate, royal_number, num_k, path, transformOrNot
