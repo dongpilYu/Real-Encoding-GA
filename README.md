@@ -1,5 +1,5 @@
 # Written by
-* dongpilYu (https://github.com/dongpilYu/Real-Encoding-GA)
+* dongpilYu (https://github.com/dongpilYu)
 
 # Requirements
 * C++ 11 or later
